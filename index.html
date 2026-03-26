@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Validação de Documento</title>
+</head>
+<body style="font-family:Arial;text-align:center;margin-top:50px;">
+
+<h2>Validação de Documento</h2>
+<div id="resultado">Verificando...</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const codigo = params.get("codigo");
+const hash = params.get("hash");
+
+if (!codigo || !hash) {
+    document.getElementById("resultado").innerHTML = "❌ Parâmetros inválidos";
+} else {
+
+fetch("https://colaboragov.sharepoint.com/sites/gestor-spu/_api/web/lists/getbytitle('dbReservas')/items?$filter=TransporteChaveEletronica eq '" + codigo + "' and TransporteHashAssinatura eq '" + hash + "'", {
+    headers: {
+        "Accept": "application/json;odata=nometadata"
+    }
+})
+.then(r => r.json())
+.then(data => {
+    if (data.value.length > 0) {
+        document.getElementById("resultado").innerHTML = "✅ Documento válido";
+    } else {
+        document.getElementById("resultado").innerHTML = "❌ Documento inválido";
+    }
+})
+.catch(() => {
+    document.getElementById("resultado").innerHTML = "Erro ao validar";
+});
+
+}
+</script>
+
+</body>
+</html>
