@@ -130,15 +130,21 @@ async function validar() {
 
       // 🔹 Função de formatação de data
       const formatarData = (dataRaw) => {
-        if (!dataRaw || dataRaw === '-') return '-';
+  if (!dataRaw || dataRaw === '-') return '-';
 
-        const data = new Date(dataRaw);
-        if (isNaN(data)) return dataRaw;
+  const data = new Date(dataRaw);
+  if (isNaN(data)) return dataRaw;
 
-        const pad = (n) => n.toString().padStart(2, '0');
+  const pad = (n) => n.toString().padStart(2, '0');
 
-        return `${pad(data.getDate())}${pad(data.getMonth()+1)}${data.getFullYear()} ${pad(data.getHours())}${pad(data.getMinutes())}`;
-      };
+  const dia = pad(data.getDate());
+  const mes = pad(data.getMonth() + 1);
+  const ano = data.getFullYear();
+  const hora = pad(data.getHours());
+  const min = pad(data.getMinutes());
+
+  return `${dia}/${mes}/${ano} ${hora}:${min}`;
+};
 
       const dataFormatada = formatarData(d.TransporteDataAprova);
       const dataChefia = formatarData(d.ChefeDataHoraAprovacao);
