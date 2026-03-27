@@ -1,41 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Validação de Documento</title>
-</head>
-<body style="font-family:Arial;text-align:center;margin-top:50px;">
+  <meta charset="UTF-8">
+  <title>Validação de Documento</title>
 
-<h2>Validação de Documento</h2>
-<div id="resultado">Verificando...</div>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .ok {
+      color: green;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .erro {
+      color: red;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .info {
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    .info p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>Validação de Documento</h2>
+
+    <div id="status">Validando...</div>
+
+    <div class="info" id="dados"></div>
+  </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const codigo = params.get("codigo");
-const hash = params.get("hash");
+  const params = new URLSearchParams(window.location.search);
+  const codigo = params.get("codigo");
+  const hash = params.get("hash");
 
-if (!codigo || !hash) {
-    document.getElementById("resultado").innerHTML = "❌ Parâmetros inválidos";
-} else {
+  async function validar() {
+    try {
+      const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
+      const data = await res.json();
 
-fetch("https://colaboragov.sharepoint.com/sites/gestor-spu/_api/web/lists/getbytitle('dbReservas')/items?$filter=TransporteChaveEletronica eq '" + codigo + "' and TransporteHashAssinatura eq '" + hash + "'", {
-    headers: {
-        "Accept": "application/json;odata=nometadata"
+      const statusDiv = document.getElementById("status");
+      const dadosDiv = document.getElementById("dados");
+
+      if (data.status === "valido") {
+        statusDiv.innerHTML = "✔ Documento VÁLIDO";
+        statusDiv.className = "ok";
+
+        const d = data.dados;
+
+        dadosDiv.innerHTML = `
+          <p><b>Solicitante:</b> ${d.Title || '-'}</p>
+          <p><b>Data:</b> ${d.Created || '-'}</p>
+          <p><b>Status:</b> ${d.StatusGeral || '-'}</p>
+          <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
+          <p><b>Código:</b> ${codigo}</p>
+        `;
+
+      } else if (data.status === "invalido") {
+        statusDiv.innerHTML = "❌ Documento INVÁLIDO";
+        statusDiv.className = "erro";
+      } else {
+        statusDiv.innerHTML = "Erro ao validar";
+        statusDiv.className = "erro";
+      }
+
+    } catch (err) {
+      document.getElementById("status").innerHTML = "Erro na comunicação";
     }
-})
-.then(r => r.json())
-.then(data => {
-    if (data.value.length > 0) {
-        document.getElementById("resultado").innerHTML = "✅ Documento válido";
-    } else {
-        document.getElementById("resultado").innerHTML = "❌ Documento inválido";
-    }
-})
-.catch(() => {
-    document.getElementById("resultado").innerHTML = "Erro ao validar";
-});
+  }
 
-}
+  validar();
 </script>
 
 </body>
