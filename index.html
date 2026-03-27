@@ -98,8 +98,25 @@ const hash = params.get("hash");
 
 async function validar() {
   try {
+
+    if (!codigo || !hash) {
+      document.getElementById("status").innerHTML = "Parâmetros inválidos";
+      document.getElementById("status").className = "status invalido";
+      return;
+    }
+
     const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
-    const data = await res.json();
+
+    // 🔥 Blindagem contra erro HTML
+    const text = await res.text();
+    console.log("Resposta bruta:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error("Resposta não é JSON válida");
+    }
 
     const statusDiv = document.getElementById("status");
     const dadosDiv = document.getElementById("dados");
@@ -109,41 +126,33 @@ async function validar() {
       statusDiv.innerHTML = "✔ Documento válido";
       statusDiv.className = "status valido";
 
-      const d = data.dados;
+      const d = data.dados || {};
 
-    // Função auxiliar para formatar a data (ddmmyyyy hhmm)
-const formatarData = (dataRaw) => {
-  if (!dataRaw || dataRaw === '-') return '-';
-  const data = new Date(dataRaw);
-  
-  // Valida se a data é válida
-  if (isNaN(data)) return dataRaw; 
+      // 🔹 Função de formatação de data
+      const formatarData = (dataRaw) => {
+        if (!dataRaw || dataRaw === '-') return '-';
 
-  const pad = (n) => n.toString().padStart(2, '0');
-  
-  const dia = pad(data.getDate());
-  const mes = pad(data.getMonth() + 1); // Meses começam em 0
-  const ano = data.getFullYear();
-  const hora = pad(data.getHours());
-  const min = pad(data.getMinutes());
+        const data = new Date(dataRaw);
+        if (isNaN(data)) return dataRaw;
 
-  return `${dia}${mes}${ano} ${hora}${min}`;
-};
+        const pad = (n) => n.toString().padStart(2, '0');
 
-const dataFormatada = formatarData(d.TransporteDataAprova);
+        return `${pad(data.getDate())}${pad(data.getMonth()+1)}${data.getFullYear()} ${pad(data.getHours())}${pad(data.getMinutes())}`;
+      };
+
+      const dataFormatada = formatarData(d.TransporteDataAprova);
       const dataChefia = formatarData(d.ChefeDataHoraAprovacao);
 
-dadosDiv.innerHTML = `
-    <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
-    <p><b>Status:</b> ${d.StatusGeral || '-'} - Aprovado em ${dataFormatada}</p>
-    <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'}- Aprovado em ${dataChefia}</p></p>
-    <p><b>Matrícula:</b> ${d.ChefeMatrícula || '-'}</p>
-    <p><b>Setor de Transportes:</b> ${d.RespTransporte || '-'}</p>
-    <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
-    <p><b>Data/Hora:</b> ${dataFormatada}</p>
-    <p><b>Código verificador:</b> ${codigo}</p>
-    <p><b>Hash:</b> ${hash}</p>
-`;
+      dadosDiv.innerHTML = `
+        <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
+        <p><b>Status:</b> ${d.StatusGeral || '-'} - Aprovado em ${dataFormatada}</p>
+        <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'} - Aprovado em ${dataChefia}</p>
+        <p><b>Matrícula:</b> ${d.ChefeMatrícula || '-'}</p>
+        <p><b>Setor de Transportes:</b> ${d.RespTransporte || '-'}</p>
+        <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
+        <p><b>Data/Hora:</b> ${dataFormatada}</p>
+        <p><b>Código verificador:</b> ${codigo}</p>
+        <p><b>Hash:</b> ${hash}</p>
 
         <div class="qrcode">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
@@ -166,7 +175,14 @@ dadosDiv.innerHTML = `
     }
 
   } catch (err) {
+    console.error(err);
+
     document.getElementById("status").innerHTML = "Erro ao validar documento";
+    document.getElementById("status").className = "status invalido";
+
+    document.getElementById("dados").innerHTML = `
+      <p><b>Detalhe técnico:</b> ${err.message}</p>
+    `;
   }
 }
 
