@@ -1,6 +1,8 @@
 export default async function handler(req, res) {
   try {
-    const { codigo, hash } = req.query;
+    // 🔎 Aceita tanto query quanto path (caso evolua depois)
+    const codigo = req.query.codigo || req.body?.codigo;
+    const hash = req.query.hash || req.body?.hash;
 
     // 🔒 Validação de entrada
     if (!codigo || !hash) {
@@ -10,22 +12,22 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🔗 URL do seu fluxo
+    // 🔗 URL do Power Automate
     const flowUrl = "https://default456213cf707347c6bf4941b654ad44.9b.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/c170f3d2665d4f359c49ebed0f2596fc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Z4FD88F15fMH5TSoVik5hDZ-6ROONamcSgjKV32OU3Q";
 
-    // 🚀 Chamada ao Power Automate (POST)
+    // 🚀 Chamada ao fluxo
     const response = await fetch(flowUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        codigo,
-        hash
+        codigo: codigo,
+        hash: hash
       })
     });
 
-    // 🔍 Se o fluxo falhar
+    // ❌ erro no fluxo
     if (!response.ok) {
       const text = await response.text();
       return res.status(500).json({
@@ -37,7 +39,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // 🔎 Verifica se encontrou registro
+    // 🔍 valida retorno
     if (!data.resultado || data.resultado.length === 0) {
       return res.status(200).json({
         status: "invalido",
@@ -45,10 +47,40 @@ export default async function handler(req, res) {
       });
     }
 
-    // ✅ Documento válido
+    const item = data.resultado[0];
+
+    // 🔥 IMPORTANTE: tipo vindo da LstValidacao
+    const tipo = item.Tipo || "reserva";
+
+    // 🎯 RESPOSTA DIFERENCIADA POR TIPO
+    let dadosFormatados = {};
+
+    if (tipo === "fiscalizacao") {
+      dadosFormatados = {
+        tipo: "fiscalizacao",
+        valido: true,
+        fiscalContrato: item.FiscalContrato || "-",
+        matricula: item.Matricula || "-",
+        dataHoraAtesto: item.DataHoraAtesto || "-"
+      };
+    } else {
+      // padrão (reserva)
+      dadosFormatados = {
+        tipo: "reserva",
+        valido: true,
+        solicitante: item.Solicitante || "-",
+        status: item.Status || "-",
+        chefeSetor: item.ChefeSetor || "-",
+        matricula: item.Matricula || "-",
+        setor: item.Setor || "-",
+        dataHora: item.DataHora || "-"
+      };
+    }
+
+    // ✅ SUCESSO
     return res.status(200).json({
       status: "valido",
-      dados: data.resultado[0]
+      dados: dadosFormatados
     });
 
   } catch (error) {
