@@ -2,12 +2,12 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Conferência de Autenticidade de Documento</title>
+<title>Autenticidade de Documento</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
+  background: #f4f6f8;
   margin: 0;
 }
 
@@ -17,17 +17,12 @@ body {
   padding: 20px;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 20px;
-}
-
 .container {
   background: white;
   max-width: 900px;
   margin: 30px auto;
   padding: 25px;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 
 .title {
@@ -39,6 +34,7 @@ body {
   padding: 15px;
   font-weight: bold;
   margin-bottom: 20px;
+  border-radius: 5px;
 }
 
 .valido {
@@ -53,17 +49,30 @@ body {
   border: 1px solid #ea4335;
 }
 
-.dados {
-  border-top: 1px solid #ddd;
-  padding-top: 15px;
+.selo {
+  border: 2px solid #137333;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  background: #f0fff4;
+}
+
+.selo strong {
+  display: block;
+  font-size: 16px;
+  color: #137333;
 }
 
 .dados p {
   margin: 6px 0;
 }
 
-.qrcode {
-  margin-top: 20px;
+.codigo-box {
+  background: #f1f3f4;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: monospace;
+  margin-top: 10px;
 }
 
 .footer {
@@ -77,14 +86,13 @@ body {
 <body>
 
 <div class="header">
-  <h1>MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS</h1>
-  <div>Secretaria do Patrimônio da União</div>
-  <div>Superintendência do Patrimônio da União no Tocantins</div>
+  <h2>MINISTÉRIO DA GESTÃO E INOVAÇÃO</h2>
+  <div>Autenticidade de Documento</div>
 </div>
 
 <div class="container">
 
-  <div class="title">Conferência de Autenticidade de Documento</div>
+  <div class="title">Conferência de Autenticidade</div>
 
   <div id="status" class="status">Validando...</div>
 
@@ -97,67 +105,58 @@ const params = new URLSearchParams(window.location.search);
 const codigo = params.get("codigo");
 const hash = params.get("hash");
 
+function formatarData(dataRaw) {
+  if (!dataRaw) return "-";
+  const d = new Date(dataRaw);
+  if (isNaN(d)) return dataRaw;
+
+  const pad = (n) => n.toString().padStart(2, '0');
+
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function hashCurto(hash) {
+  if (!hash) return "-";
+  return hash.substring(0, 10) + "...";
+}
+
 async function validar() {
+
+  const statusDiv = document.getElementById("status");
+  const dadosDiv = document.getElementById("dados");
+
+  if (!codigo || !hash) {
+    statusDiv.innerHTML = "Parâmetros inválidos";
+    statusDiv.className = "status invalido";
+    return;
+  }
+
   try {
 
-    const statusDiv = document.getElementById("status");
-    const dadosDiv = document.getElementById("dados");
-
-    if (!codigo || !hash) {
-      statusDiv.innerHTML = "Parâmetros inválidos";
-      statusDiv.className = "status invalido";
-      return;
-    }
-
     const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
-    const text = await res.text();
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error("Resposta não é JSON válida");
-    }
+    const data = await res.json();
 
     if (data.status === "valido") {
 
-      statusDiv.innerHTML = "✔ Documento válido";
+      statusDiv.innerHTML = "✔ Documento Autêntico";
       statusDiv.className = "status valido";
 
-      const d = data.dados || {};
-      const tipo = d.tipo || "reserva";
-
-      // 🔹 função data
-      const formatarData = (dataRaw) => {
-        if (!dataRaw || dataRaw === '-') return '-';
-
-        const data = new Date(dataRaw);
-        if (isNaN(data)) return dataRaw;
-
-        const pad = (n) => n.toString().padStart(2, '0');
-
-        return `${pad(data.getDate())}/${pad(data.getMonth()+1)}/${data.getFullYear()} ${pad(data.getHours())}:${pad(data.getMinutes())}`;
-      };
+      const d = data.dados;
+      const tipo = d.tipo;
 
       let html = "";
 
-      // 🔥 DIFERENCIAÇÃO POR TIPO
       if (tipo === "fiscalizacao") {
-
         html = `
-          <p><b>Fiscal do contrato:</b> ${d.fiscalContrato || '-'}</p>
-          <p><b>Matrícula:</b> ${d.matricula || '-'}</p>
+          <p><b>Fiscal do contrato:</b> ${d.fiscalContrato}</p>
+          <p><b>Matrícula:</b> ${d.matricula}</p>
           <p><b>Data/hora do atesto:</b> ${formatarData(d.dataHoraAtesto)}</p>
         `;
-
       } else {
-
         html = `
-          <p><b>Solicitante:</b> ${d.solicitante || '-'}</p>
-          <p><b>Status:</b> ${d.status || '-'}</p>
-          <p><b>Chefe do Setor:</b> ${d.chefeSetor || '-'}</p>
-          <p><b>Matrícula:</b> ${d.matricula || '-'}</p>
-          <p><b>Setor:</b> ${d.setor || '-'}</p>
+          <p><b>Solicitante:</b> ${d.solicitante}</p>
+          <p><b>Status:</b> ${d.status}</p>
+          <p><b>Matrícula:</b> ${d.matricula}</p>
           <p><b>Data/Hora:</b> ${formatarData(d.dataHora)}</p>
         `;
       }
@@ -165,43 +164,38 @@ async function validar() {
       dadosDiv.innerHTML = `
         ${html}
 
-        <p><b>Código verificador:</b> ${codigo}</p>
-        <p><b>Hash:</b> ${hash}</p>
+        <div class="selo">
+          <strong>DOCUMENTO VALIDADO DIGITALMENTE</strong>
+          Código verificador:
+          <div class="codigo-box">${codigo}</div>
 
-        <div class="qrcode">
+          Hash de segurança:
+          <div class="codigo-box">${hashCurto(hash)}</div>
+        </div>
+
+        <div style="margin-top:20px;">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
         </div>
 
         <div class="footer">
-          A autenticidade deste documento pode ser conferida no sistema de gestão de frotas,
-          informando o código verificador e o hash de segurança.
-        </div>
-
-        <div class="footer" style="text-align: right; font-style: italic; font-size: 10px;">
-          Developed by Jaasiel Nascimento Lima (63)98428-9621
+          Este documento foi validado eletronicamente e pode ser conferido a qualquer momento utilizando o código verificador.
         </div>
       `;
 
     } else {
 
-      document.getElementById("status").innerHTML = "❌ Documento inválido ou não encontrado";
-      document.getElementById("status").className = "status invalido";
+      statusDiv.innerHTML = "❌ Documento inválido";
+      statusDiv.className = "status invalido";
 
-      document.getElementById("dados").innerHTML = `
-        <p>O código informado não corresponde a um documento válido.</p>
-      `;
+      dadosDiv.innerHTML = `<p>Documento não encontrado ou inválido.</p>`;
     }
 
   } catch (err) {
 
-    console.error(err);
+    statusDiv.innerHTML = "Erro na validação";
+    statusDiv.className = "status invalido";
 
-    document.getElementById("status").innerHTML = "Erro ao validar documento";
-    document.getElementById("status").className = "status invalido";
-
-    document.getElementById("dados").innerHTML = `
-      <p><b>Detalhe técnico:</b> ${err.message}</p>
-    `;
+    dadosDiv.innerHTML = `<p>${err.message}</p>`;
   }
 }
 
