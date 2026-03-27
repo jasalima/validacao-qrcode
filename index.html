@@ -100,17 +100,17 @@ const hash = params.get("hash");
 async function validar() {
   try {
 
+    const statusDiv = document.getElementById("status");
+    const dadosDiv = document.getElementById("dados");
+
     if (!codigo || !hash) {
-      document.getElementById("status").innerHTML = "Parâmetros inválidos";
-      document.getElementById("status").className = "status invalido";
+      statusDiv.innerHTML = "Parâmetros inválidos";
+      statusDiv.className = "status invalido";
       return;
     }
 
     const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
-
-    // 🔥 Blindagem contra erro HTML
     const text = await res.text();
-    console.log("Resposta bruta:", text);
 
     let data;
     try {
@@ -119,45 +119,52 @@ async function validar() {
       throw new Error("Resposta não é JSON válida");
     }
 
-    const statusDiv = document.getElementById("status");
-    const dadosDiv = document.getElementById("dados");
-
     if (data.status === "valido") {
 
       statusDiv.innerHTML = "✔ Documento válido";
       statusDiv.className = "status valido";
 
       const d = data.dados || {};
+      const tipo = d.tipo || "reserva";
 
-      // 🔹 Função de formatação de data
+      // 🔹 função data
       const formatarData = (dataRaw) => {
-  if (!dataRaw || dataRaw === '-') return '-';
+        if (!dataRaw || dataRaw === '-') return '-';
 
-  const data = new Date(dataRaw);
-  if (isNaN(data)) return dataRaw;
+        const data = new Date(dataRaw);
+        if (isNaN(data)) return dataRaw;
 
-  const pad = (n) => n.toString().padStart(2, '0');
+        const pad = (n) => n.toString().padStart(2, '0');
 
-  const dia = pad(data.getDate());
-  const mes = pad(data.getMonth() + 1);
-  const ano = data.getFullYear();
-  const hora = pad(data.getHours());
-  const min = pad(data.getMinutes());
+        return `${pad(data.getDate())}/${pad(data.getMonth()+1)}/${data.getFullYear()} ${pad(data.getHours())}:${pad(data.getMinutes())}`;
+      };
 
-  return `${dia}/${mes}/${ano} ${hora}:${min}`;
-};
+      let html = "";
 
-      const dataFormatada = formatarData(d.TransporteDataAprova);
-      const dataChefia = formatarData(d.ChefeDataHoraAprovacao);
+      // 🔥 DIFERENCIAÇÃO POR TIPO
+      if (tipo === "fiscalizacao") {
+
+        html = `
+          <p><b>Fiscal do contrato:</b> ${d.fiscalContrato || '-'}</p>
+          <p><b>Matrícula:</b> ${d.matricula || '-'}</p>
+          <p><b>Data/hora do atesto:</b> ${formatarData(d.dataHoraAtesto)}</p>
+        `;
+
+      } else {
+
+        html = `
+          <p><b>Solicitante:</b> ${d.solicitante || '-'}</p>
+          <p><b>Status:</b> ${d.status || '-'}</p>
+          <p><b>Chefe do Setor:</b> ${d.chefeSetor || '-'}</p>
+          <p><b>Matrícula:</b> ${d.matricula || '-'}</p>
+          <p><b>Setor:</b> ${d.setor || '-'}</p>
+          <p><b>Data/Hora:</b> ${formatarData(d.dataHora)}</p>
+        `;
+      }
 
       dadosDiv.innerHTML = `
-        <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
-        <p><b>Status:</b> ${d.StatusGeral || '-'} em ${dataFormatada}</p>
-        <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'} - Aprovado em ${dataChefia}</p>
-        <p><b>Matrícula:</b> ${d.ChefeMatrícula || '-'}</p>
-        <p><b>Setor de Transportes:</b> ${d.RespTransporte || '-'}</p>
-        <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
-        <p><b>Data/Hora:</b> ${dataFormatada}</p>
+        ${html}
+
         <p><b>Código verificador:</b> ${codigo}</p>
         <p><b>Hash:</b> ${hash}</p>
 
@@ -170,22 +177,23 @@ async function validar() {
           informando o código verificador e o hash de segurança.
         </div>
 
-      <div class="footer" style="text-align: right; font-style: italic; font-size: 10px;">
-    Developed by Jaasiel Nascimento lima (63)98428-9621
-</div>
+        <div class="footer" style="text-align: right; font-style: italic; font-size: 10px;">
+          Developed by Jaasiel Nascimento Lima (63)98428-9621
+        </div>
       `;
 
     } else {
 
-      statusDiv.innerHTML = "❌ Documento inválido ou não encontrado";
-      statusDiv.className = "status invalido";
+      document.getElementById("status").innerHTML = "❌ Documento inválido ou não encontrado";
+      document.getElementById("status").className = "status invalido";
 
-      dadosDiv.innerHTML = `
+      document.getElementById("dados").innerHTML = `
         <p>O código informado não corresponde a um documento válido.</p>
       `;
     }
 
   } catch (err) {
+
     console.error(err);
 
     document.getElementById("status").innerHTML = "Erro ao validar documento";
