@@ -1,100 +1,175 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Validação de Documento</title>
+<meta charset="UTF-8">
+<title>Conferência de Autenticidade de Documento</title>
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #f4f6f8;
-      text-align: center;
-      padding: 40px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+}
 
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      max-width: 700px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+.header {
+  background: #0b5fa5;
+  color: white;
+  padding: 20px;
+}
 
-    .ok {
-      color: green;
-      font-size: 22px;
-      font-weight: bold;
-    }
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+}
 
-    .erro {
-      color: red;
-      font-size: 22px;
-      font-weight: bold;
-    }
+.container {
+  background: white;
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 25px;
+  border-radius: 5px;
+}
 
-    .info {
-      text-align: left;
-      margin-top: 20px;
-    }
+.title {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
 
-    .info p {
-      margin: 5px 0;
-    }
-  </style>
+.status {
+  padding: 15px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.valido {
+  background: #e6f4ea;
+  color: #137333;
+  border: 1px solid #34a853;
+}
+
+.invalido {
+  background: #fdecea;
+  color: #c5221f;
+  border: 1px solid #ea4335;
+}
+
+.dados {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+}
+
+.dados p {
+  margin: 6px 0;
+}
+
+.qrcode {
+  margin-top: 20px;
+}
+
+.footer {
+  margin-top: 30px;
+  font-size: 12px;
+  color: #555;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="card">
-    <h2>Validação de Documento</h2>
+<div class="header">
+  <h1>MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS</h1>
+  <div>Secretaria do Patrimônio da União</div>
+</div>
 
-    <div id="status">Validando...</div>
+<div class="container">
 
-    <div class="info" id="dados"></div>
-  </div>
+  <div class="title">Conferência de Autenticidade de Documento</div>
+
+  <div id="status" class="status">Validando...</div>
+
+  <div id="dados" class="dados"></div>
+
+</div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const codigo = params.get("codigo");
-  const hash = params.get("hash");
+const params = new URLSearchParams(window.location.search);
+const codigo = params.get("codigo");
+const hash = params.get("hash");
 
-  async function validar() {
-    try {
-      const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
-      const data = await res.json();
+async function validar() {
+  try {
+    const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
+    const data = await res.json();
 
-      const statusDiv = document.getElementById("status");
-      const dadosDiv = document.getElementById("dados");
+    const statusDiv = document.getElementById("status");
+    const dadosDiv = document.getElementById("dados");
 
-      if (data.status === "valido") {
-        statusDiv.innerHTML = "✔ Documento VÁLIDO";
-        statusDiv.className = "ok";
+    if (data.status === "valido") {
 
-        const d = data.dados;
+      statusDiv.innerHTML = "✔ Documento válido";
+      statusDiv.className = "status valido";
 
-        dadosDiv.innerHTML = `
-          <p><b>Solicitante:</b> ${d.Title || '-'}</p>
-          <p><b>Data:</b> ${d.Created || '-'}</p>
-          <p><b>Status:</b> ${d.StatusGeral || '-'}</p>
-          <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
-          <p><b>Código:</b> ${codigo}</p>
-        `;
+      const d = data.dados;
 
-      } else if (data.status === "invalido") {
-        statusDiv.innerHTML = "❌ Documento INVÁLIDO";
-        statusDiv.className = "erro";
-      } else {
-        statusDiv.innerHTML = "Erro ao validar";
-        statusDiv.className = "erro";
-      }
+    // Função auxiliar para formatar a data (ddmmyyyy hhmm)
+const formatarData = (dataRaw) => {
+  if (!dataRaw || dataRaw === '-') return '-';
+  const data = new Date(dataRaw);
+  
+  // Valida se a data é válida
+  if (isNaN(data)) return dataRaw; 
 
-    } catch (err) {
-      document.getElementById("status").innerHTML = "Erro na comunicação";
+  const pad = (n) => n.toString().padStart(2, '0');
+  
+  const dia = pad(data.getDate());
+  const mes = pad(data.getMonth() + 1); // Meses começam em 0
+  const ano = data.getFullYear();
+  const hora = pad(data.getHours());
+  const min = pad(data.getMinutes());
+
+  return `${dia}${mes}${ano} ${hora}${min}`;
+};
+
+const dataFormatada = formatarData(d.TransporteDataAprova);
+
+dadosDiv.innerHTML = `
+    <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
+    <p><b>Status:</b> ${d.StatusGeral || '-'} - Aprovado em ${dataFormatada}</p>
+    <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'}</p>
+    <p><b>Matrícula:</b> ${d.ChefeMatrícula || '-'}</p>
+    <p><b>Setor de Transportes:</b> ${d.RespTransporte || '-'}</p>
+    <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
+    <p><b>Data/Hora:</b> ${dataFormatada}</p>
+    <p><b>Código verificador:</b> ${codigo}</p>
+    <p><b>Hash:</b> ${hash}</p>
+`;
+
+        <div class="qrcode">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
+        </div>
+
+        <div class="footer">
+          A autenticidade deste documento pode ser conferida no sistema de gestão de frotas,
+          informando o código verificador e o hash de segurança.
+        </div>
+      `;
+
+    } else {
+
+      statusDiv.innerHTML = "❌ Documento inválido ou não encontrado";
+      statusDiv.className = "status invalido";
+
+      dadosDiv.innerHTML = `
+        <p>O código informado não corresponde a um documento válido.</p>
+      `;
     }
-  }
 
-  validar();
+  } catch (err) {
+    document.getElementById("status").innerHTML = "Erro ao validar documento";
+  }
+}
+
+validar();
 </script>
 
 </body>
