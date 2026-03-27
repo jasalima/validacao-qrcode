@@ -131,11 +131,12 @@ const formatarData = (dataRaw) => {
 };
 
 const dataFormatada = formatarData(d.TransporteDataAprova);
+      const dataChefia = formatarData(d.ChefeDataHoraAprovacao);
 
 dadosDiv.innerHTML = `
     <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
     <p><b>Status:</b> ${d.StatusGeral || '-'} - Aprovado em ${dataFormatada}</p>
-    <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'}</p>
+    <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'}- Aprovado em ${dataChefia}</p></p>
     <p><b>Matrícula:</b> ${d.ChefeMatrícula || '-'}</p>
     <p><b>Setor de Transportes:</b> ${d.RespTransporte || '-'}</p>
     <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
