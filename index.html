@@ -148,14 +148,14 @@ async function validar() {
       statusDiv.className = "status valido";
 
       const d = data.dados;
-      const tipo = data.tipo;
+      const tipo = (data.tipo || "").toLowerCase();
 
       let html = "";
 
       // =========================
       // 📄 FISCALIZAÇÃO
       // =========================
-      if (tipo === "Fiscalizacao") {
+      if (tipo === "fiscalizacao") {
 
         html = `
           <p><b>Fiscal do contrato:</b> ${d.AssinanteNome || '-'}</p>
@@ -166,7 +166,7 @@ async function validar() {
       // =========================
       // 🚗 TRANSPORTE
       // =========================
-      } else if (tipo === "Transporte") {
+      } else if (tipo === "transporte") {
 
         html = `
           <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
