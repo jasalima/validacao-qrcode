@@ -80,6 +80,12 @@ body {
   font-size: 12px;
   color: #555;
 }
+
+hr {
+  border: 0;
+  border-top: 1px solid #ddd;
+  margin: 12px 0;
+}
 </style>
 </head>
 
@@ -142,22 +148,53 @@ async function validar() {
       statusDiv.className = "status valido";
 
       const d = data.dados;
-      const tipo = d.tipo;
+      const tipo = data.tipo;
 
       let html = "";
 
-      if (tipo === "fiscalizacao") {
+      // =========================
+      // 📄 FISCALIZAÇÃO
+      // =========================
+      if (tipo === "Fiscalizacao") {
+
         html = `
-          <p><b>Fiscal do contrato:</b> ${d.fiscalContrato}</p>
-          <p><b>Matrícula:</b> ${d.matricula}</p>
-          <p><b>Data/hora do atesto:</b> ${formatarData(d.dataHoraAtesto)}</p>
+          <p><b>Fiscal do contrato:</b> ${d.AssinanteNome || '-'}</p>
+          <p><b>Matrícula:</b> ${d.AssinanteMatricula || '-'}</p>
+          <p><b>Data/hora do atesto:</b> ${formatarData(d.DataHoraAssinatura)}</p>
         `;
-      } else {
+
+      // =========================
+      // 🚗 TRANSPORTE
+      // =========================
+      } else if (tipo === "Transporte") {
+
         html = `
-          <p><b>Solicitante:</b> ${d.solicitante}</p>
-          <p><b>Status:</b> ${d.status}</p>
-          <p><b>Matrícula:</b> ${d.matricula}</p>
-          <p><b>Data/Hora:</b> ${formatarData(d.dataHora)}</p>
+          <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
+
+          <hr>
+
+          <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'}</p>
+          <p><b>Matrícula:</b> ${d.ChefeMatricula || '-'}</p>
+          <p><b>Data/Hora da aprovação:</b> ${formatarData(d.DataHoraAssinatura)}</p>
+
+          <hr>
+
+          <p><b>Responsável pelo Transporte:</b> ${d.RespTransporte || '-'}</p>
+          <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
+          <p><b>Data/Hora da aprovação:</b> ${formatarData(d.TransporteDataAprova)}</p>
+
+          <hr>
+
+          <p><b>Status:</b> ${d.StatusGeral || '-'}</p>
+        `;
+
+      // =========================
+      // 🔄 GENÉRICO
+      // =========================
+      } else {
+
+        html = `
+          <p><b>Documento identificado, porém sem layout específico.</b></p>
         `;
       }
 
