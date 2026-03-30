@@ -5,71 +5,15 @@
 <title>Autenticidade de Documento</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-}
-
-.header {
-  background: #0b5fa5;
-  color: white;
-  padding: 20px;
-}
-
-.container {
-  background: white;
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 25px;
-  border-radius: 8px;
-}
-
-.title {
-  font-size: 22px;
-  margin-bottom: 20px;
-}
-
-.status {
-  padding: 15px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  border-radius: 5px;
-}
-
-.valido {
-  background: #e6f4ea;
-  color: #137333;
-  border: 1px solid #34a853;
-}
-
-.invalido {
-  background: #fdecea;
-  color: #c5221f;
-  border: 1px solid #ea4335;
-}
-
-.selo {
-  border: 2px solid #137333;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 20px;
-  background: #f0fff4;
-}
-
-.codigo-box {
-  background: #f1f3f4;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: monospace;
-  margin-top: 10px;
-}
-
-.footer {
-  margin-top: 30px;
-  font-size: 12px;
-  color: #555;
-}
+body { font-family: Arial; background:#f4f6f8; margin:0; }
+.header { background:#0b5fa5; color:#fff; padding:20px; }
+.container { background:#fff; max-width:900px; margin:30px auto; padding:25px; border-radius:8px; }
+.status { padding:15px; font-weight:bold; margin-bottom:20px; border-radius:5px; }
+.valido { background:#e6f4ea; color:#137333; border:1px solid #34a853; }
+.invalido { background:#fdecea; color:#c5221f; border:1px solid #ea4335; }
+.selo { border:2px solid #137333; padding:15px; border-radius:8px; margin-top:20px; background:#f0fff4; }
+.codigo-box { background:#f1f3f4; padding:10px; border-radius:5px; font-family:monospace; margin-top:10px; }
+.footer { margin-top:30px; font-size:12px; color:#555; }
 </style>
 </head>
 
@@ -81,8 +25,7 @@ body {
 </div>
 
 <div class="container">
-  <div class="title">Conferência de Autenticidade</div>
-
+  <h3>Conferência de Autenticidade</h3>
   <div id="status" class="status">Validando...</div>
   <div id="dados"></div>
 </div>
@@ -93,110 +36,87 @@ window.onload = function () {
   const statusDiv = document.getElementById("status");
   const dadosDiv = document.getElementById("dados");
 
-  if (!statusDiv || !dadosDiv) {
-    alert("Erro interno: elementos não encontrados");
-    return;
-  }
-
   const params = new URLSearchParams(window.location.search);
   const codigo = params.get("codigo");
   const hash = params.get("hash");
 
-  function formatarData(dataRaw) {
-    if (!dataRaw) return "-";
-    const d = new Date(dataRaw);
-    if (isNaN(d)) return dataRaw;
-
-    const pad = (n) => n.toString().padStart(2, '0');
-
-    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  function fData(v){
+    if(!v) return "-";
+    const d = new Date(v);
+    if(isNaN(d)) return v;
+    const p=n=>n.toString().padStart(2,'0');
+    return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
-  function hashCurto(hash) {
-    if (!hash) return "-";
-    return hash.substring(0, 10) + "...";
+  function curto(v){
+    if(!v) return "-";
+    return v.substring(0,10)+"...";
   }
 
-  function getCampo(obj, nomes) {
-    for (let nome of nomes) {
-      if (obj && obj[nome]) return obj[nome];
+  function g(o, campos){
+    for(let c of campos){
+      if(o[c]) return o[c];
     }
     return "-";
   }
 
-  async function validar() {
+  async function validar(){
 
-    try {
-
-      if (!codigo || !hash) {
-        statusDiv.innerHTML = "Parâmetros inválidos";
-        statusDiv.className = "status invalido";
-        return;
-      }
+    try{
 
       const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
       const data = await res.json();
 
-      console.log("RESPOSTA:", data);
+      console.log("DATA:", data);
 
-      if (data.status !== "valido") {
-        statusDiv.innerHTML = "❌ Documento inválido";
-        statusDiv.className = "status invalido";
-        dadosDiv.innerHTML = "<p>Documento não encontrado.</p>";
+      if(data.status !== "valido"){
+        statusDiv.innerHTML="❌ Documento inválido";
+        statusDiv.className="status invalido";
         return;
       }
 
-      statusDiv.innerHTML = "✔ Documento Autêntico";
-      statusDiv.className = "status valido";
+      statusDiv.innerHTML="✔ Documento Autêntico";
+      statusDiv.className="status valido";
 
       const d = data.dados || {};
-      const tipo = (d.tipo || "").toLowerCase().trim();
+      const tipo = (d.tipo || "").toLowerCase();
 
-      console.log("TIPO:", tipo);
-
-      let html = "";
+      let html="";
 
       // =========================
       // FISCALIZAÇÃO
       // =========================
-      if (tipo === "fiscalizacao") {
+      if(tipo === "fiscalizacao"){
 
         html = `
-          <p><b>Fiscal:</b> ${getCampo(d, ["Nome","fiscalContrato"])}</p>
-          <p><b>Matrícula:</b> ${getCampo(d, ["Matricula","matricula"])}</p>
-          <p><b>Data/Hora:</b> ${formatarData(getCampo(d, ["DataHoraAssinatura"]))}</p>
+          <p><b>Fiscal:</b> ${g(d,["AssinanteNome"])}</p>
+          <p><b>Matrícula:</b> ${g(d,["AssinanteMatricula"])}</p>
+          <p><b>Data/Hora:</b> ${fData(g(d,["DataHoraAssinatura"]))}</p>
         `;
       }
 
       // =========================
       // TRANSPORTE / RESERVA
       // =========================
-      else if (tipo === "transporte" || tipo === "reserva") {
+      else if(tipo === "transporte" || tipo === "reserva"){
 
         html = `
-          <p><b>Solicitante:</b> ${getCampo(d, ["Solicitante","Nome"])}</p>
+          <p><b>Solicitante:</b> ${g(d,["Solicitante"])}</p>
 
-          <p><b>Chefe do setor:</b> ${getCampo(d, ["ChefeNome"])}</p>
-          <p><b>Matrícula:</b> ${getCampo(d, ["ChefeMatricula"])}</p>
-          <p><b>Data aprovação:</b> ${formatarData(getCampo(d, ["ChefeDataHoraAprovacao"]))}</p>
+          <p><b>Chefe do setor:</b> ${g(d,["ChefeNome"])}</p>
+          <p><b>Matrícula:</b> ${g(d,["ChefeMatricula"])}</p>
+          <p><b>Data aprovação:</b> ${fData(g(d,["ChefeDataHoraAprovacao"]))}</p>
 
           <hr>
 
-          <p><b>Responsável transporte:</b> ${getCampo(d, ["RespTransporte"])}</p>
-          <p><b>Matrícula:</b> ${getCampo(d, ["TransporteMatricula"])}</p>
-          <p><b>Data aprovação:</b> ${formatarData(getCampo(d, ["TransporteDataAprova"]))}</p>
+          <p><b>Responsável transporte:</b> ${g(d,["RespTransporte"])}</p>
+          <p><b>Matrícula:</b> ${g(d,["TransporteMatricula"])}</p>
+          <p><b>Data aprovação:</b> ${fData(g(d,["TransporteDataAprova"]))}</p>
         `;
       }
 
-      // =========================
-      // FALLBACK
-      // =========================
-      else {
-
-        html = `
-          <p><b>Documento identificado, porém sem layout específico.</b></p>
-          <p><b>Tipo recebido:</b> ${tipo}</p>
-        `;
+      else{
+        html = `<p><b>Tipo não mapeado:</b> ${tipo}</p>`;
       }
 
       dadosDiv.innerHTML = `
@@ -209,7 +129,7 @@ window.onload = function () {
           <div class="codigo-box">${codigo}</div>
 
           Hash de segurança:
-          <div class="codigo-box">${hashCurto(hash)}</div>
+          <div class="codigo-box">${curto(hash)}</div>
         </div>
 
         <div style="margin-top:20px;">
@@ -217,23 +137,23 @@ window.onload = function () {
         </div>
 
         <div class="footer">
-          Este documento foi validado eletronicamente e pode ser conferido a qualquer momento.
+          Este documento foi validado eletronicamente.
         </div>
       `;
 
-    } catch (err) {
+    }catch(e){
 
-      console.error(err);
+      console.error(e);
 
-      statusDiv.innerHTML = "Erro na validação";
-      statusDiv.className = "status invalido";
+      statusDiv.innerHTML="Erro na validação";
+      statusDiv.className="status invalido";
 
-      dadosDiv.innerHTML = `<p>${err.message}</p>`;
+      dadosDiv.innerHTML=`<p>${e.message}</p>`;
     }
   }
 
   validar();
-};
+}
 </script>
 
 </body>
