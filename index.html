@@ -80,12 +80,6 @@ body {
   font-size: 12px;
   color: #555;
 }
-
-hr {
-  border: 0;
-  border-top: 1px solid #ddd;
-  margin: 12px 0;
-}
 </style>
 </head>
 
@@ -126,6 +120,15 @@ function hashCurto(hash) {
   return hash.substring(0, 10) + "...";
 }
 
+function getCampo(obj, nomes) {
+  for (let nome of nomes) {
+    if (obj[nome] !== undefined && obj[nome] !== null) {
+      return obj[nome];
+    }
+  }
+  return "-";
+}
+
 async function validar() {
 
   const statusDiv = document.getElementById("status");
@@ -147,8 +150,10 @@ async function validar() {
       statusDiv.innerHTML = "✔ Documento Autêntico";
       statusDiv.className = "status valido";
 
-      const d = data.dados;
-      const tipo = (data.tipo || "").toLowerCase();
+      const d = data.dados || {};
+
+      // 🔥 CORREÇÃO PRINCIPAL
+      const tipo = (d.tipo || "").toLowerCase();
 
       let html = "";
 
@@ -158,43 +163,40 @@ async function validar() {
       if (tipo === "fiscalizacao") {
 
         html = `
-          <p><b>Fiscal do contrato:</b> ${d.AssinanteNome || '-'}</p>
-          <p><b>Matrícula:</b> ${d.AssinanteMatricula || '-'}</p>
-          <p><b>Data/hora do atesto:</b> ${formatarData(d.DataHoraAssinatura)}</p>
+          <p><b>Fiscal do contrato:</b> ${getCampo(d, ["fiscalContrato","Nome"])}</p>
+          <p><b>Matrícula:</b> ${getCampo(d, ["matricula","Matricula"])}</p>
+          <p><b>Data/hora do atesto:</b> ${formatarData(getCampo(d, ["dataHoraAtesto","DataHoraAssinatura"]))}</p>
         `;
+      }
 
       // =========================
-      // 🚗 TRANSPORTE
+      // 🚚 TRANSPORTE (COMPLETO)
       // =========================
-      } else if (tipo === "transporte") {
+      else if (tipo === "transporte") {
 
         html = `
-          <p><b>Solicitante:</b> ${d.Solicitante || '-'}</p>
+          <p><b>Solicitante:</b> ${getCampo(d, ["Solicitante"])}</p>
+
+          <p><b>Chefe do setor:</b> ${getCampo(d, ["ChefeNome"])}</p>
+          <p><b>Matrícula:</b> ${getCampo(d, ["ChefeMatricula"])}</p>
+          <p><b>Data/Hora aprovação:</b> ${formatarData(getCampo(d, ["ChefeDataHoraAprovacao"]))}</p>
 
           <hr>
 
-          <p><b>Chefe do Setor:</b> ${d.ChefeNome || '-'}</p>
-          <p><b>Matrícula:</b> ${d.ChefeMatricula || '-'}</p>
-          <p><b>Data/Hora da aprovação:</b> ${formatarData(d.DataHoraAssinatura)}</p>
-
-          <hr>
-
-          <p><b>Responsável pelo Transporte:</b> ${d.RespTransporte || '-'}</p>
-          <p><b>Matrícula:</b> ${d.TransporteMatricula || '-'}</p>
-          <p><b>Data/Hora da aprovação:</b> ${formatarData(d.TransporteDataAprova)}</p>
-
-          <hr>
-
-          <p><b>Status:</b> ${d.StatusGeral || '-'}</p>
+          <p><b>Responsável transporte:</b> ${getCampo(d, ["RespTransporte"])}</p>
+          <p><b>Matrícula:</b> ${getCampo(d, ["TransporteMatricula"])}</p>
+          <p><b>Data/Hora aprovação:</b> ${formatarData(getCampo(d, ["TransporteDataAprova"]))}</p>
         `;
+      }
 
       // =========================
-      // 🔄 GENÉRICO
+      // 🧯 FALLBACK
       // =========================
-      } else {
+      else {
 
         html = `
           <p><b>Documento identificado, porém sem layout específico.</b></p>
+          <p><b>Tipo recebido:</b> ${tipo || "não informado"}</p>
         `;
       }
 
@@ -203,6 +205,7 @@ async function validar() {
 
         <div class="selo">
           <strong>DOCUMENTO VALIDADO DIGITALMENTE</strong>
+
           Código verificador:
           <div class="codigo-box">${codigo}</div>
 
