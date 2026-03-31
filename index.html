@@ -5,23 +5,40 @@
 <title>Autenticidade de Documento</title>
 
 <style>
-body { font-family: Arial; background:#f4f6f8; margin:0; }
+body {
+  font-family: "Segoe UI", Arial;
+  background:#e9ecef;
+  margin:0;
+}
 
-.header { background:#0b5fa5; color:#fff; padding:20px; }
+.header {
+  background:#0b5fa5;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+  letter-spacing:1px;
+}
 
 .container {
   background:#fff;
-  max-width:900px;
+  max-width:850px;
   margin:30px auto;
-  padding:25px;
-  border-radius:8px;
+  padding:30px;
+  border-radius:6px;
+  box-shadow:0 0 10px rgba(0,0,0,0.08);
+  border:1px solid #dcdcdc;
+}
+
+h3 {
+  margin-top:0;
 }
 
 .status {
-  padding:15px;
+  padding:14px;
   font-weight:bold;
-  margin-bottom:20px;
-  border-radius:5px;
+  margin-bottom:25px;
+  border-radius:4px;
+  font-size:15px;
 }
 
 .valido {
@@ -36,30 +53,50 @@ body { font-family: Arial; background:#f4f6f8; margin:0; }
   border:1px solid #ea4335;
 }
 
+.bloco {
+  margin-bottom:20px;
+}
+
+.linha {
+  margin:6px 0;
+  font-size:15px;
+}
+
+.linha b {
+  display:inline-block;
+  width:200px;
+  color:#333;
+}
+
+.divisor {
+  border-top:1px solid #ddd;
+  margin:20px 0;
+}
+
 .selo {
   border:2px solid #137333;
-  padding:15px;
-  border-radius:8px;
+  padding:18px;
+  border-radius:6px;
+  background:#f3fff6;
   margin-top:20px;
-  background:#f0fff4;
 }
 
 .codigo-box {
   background:#f1f3f4;
   padding:10px;
-  border-radius:5px;
+  border-radius:4px;
   font-family:monospace;
-  margin-top:10px;
+  margin-top:6px;
 }
 
 .footer {
   margin-top:25px;
-  padding-top:15px;
   border-top:1px solid #ccc;
   border-bottom:1px solid #ccc;
+  padding:15px 0;
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
 }
 
 .footer-text {
@@ -67,8 +104,15 @@ body { font-family: Arial; background:#f4f6f8; margin:0; }
   color:#555;
 }
 
-.footer img {
-  width:120px;
+.qr-box {
+  border:1px solid #ccc;
+  padding:10px;
+  border-radius:6px;
+  background:#fff;
+}
+
+.qr-box img {
+  width:110px;
 }
 
 a {
@@ -82,7 +126,7 @@ a {
 
 <div class="header">
   <h2>MINISTÉRIO DA GESTÃO E INOVAÇÃO</h2>
-  <div>Autenticidade de Documento</div>
+  <div>VALIDAÇÃO DE DOCUMENTO</div>
 </div>
 
 <div class="container">
@@ -114,9 +158,11 @@ window.onload = async function () {
     const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
     const data = await res.json();
 
-    console.log("RETORNO API:", data);
+    const payload = data.corpo || data;
+    const d = payload.dados || {};
+    const tipo = (payload.tipo || "").toLowerCase();
 
-    if(data.status !== "valido"){
+    if(payload.status !== "valido"){
       statusDiv.innerHTML = "❌ Documento inválido";
       statusDiv.className = "status invalido";
       return;
@@ -125,35 +171,35 @@ window.onload = async function () {
     statusDiv.innerHTML = "✔ Documento Autêntico";
     statusDiv.className = "status valido";
 
-    const payload = data.corpo || data;
-
-const d = payload.dados || {};
-const tipo = (payload.tipo || "").toLowerCase();
-
     let html = "";
 
     if(tipo === "fiscalizacao"){
 
       html = `
-        <p><b>Fiscal do contrato:</b> ${d.AssinanteNome || "-"}</p>
-        <p><b>Matrícula:</b> ${d.AssinanteMatricula || "-"}</p>
-        <p><b>Status:</b> ${d.StatusGeral || "-"}</p>
+        <div class="bloco">
+          <div class="linha"><b>Fiscal do contrato:</b> ${d.AssinanteNome || "-"}</div>
+          <div class="linha"><b>Matrícula:</b> ${d.AssinanteMatricula || "-"}</div>
+          <div class="linha"><b>Status:</b> ${d.StatusGeral || "-"}</div>
+        </div>
       `;
 
     } else {
 
       html = `
-        <p><b>Solicitante:</b> ${d.Solicitante || "-"}</p>
-        <p><b>Status:</b> ${d.StatusGeral || "-"}</p>
+        <div class="bloco">
+          <div class="linha"><b>Solicitante:</b> ${d.Solicitante || "-"}</div>
+          <div class="linha"><b>Status:</b> ${d.StatusGeral || "-"}</div>
+          <div class="linha"><b>Chefe do setor:</b> ${d.ChefeNome || "-"}</div>
+          <div class="linha"><b>Matrícula:</b> ${d.ChefeMatricula || "-"}</div>
+        </div>
 
-        <p><b>Chefe do setor:</b> ${d.ChefeNome || "-"}</p>
-        <p><b>Matrícula:</b> ${d.ChefeMatricula || "-"}</p>
+        <div class="divisor"></div>
 
-        <hr>
-
-        <p><b>Responsável transporte:</b> ${d.RespTransporte || "-"}</p>
-        <p><b>Matrícula:</b> ${d.TransporteMatricula || "-"}</p>
-        <p><b>Data aprovação:</b> ${fData(d.TransporteDataAprova)}</p>
+        <div class="bloco">
+          <div class="linha"><b>Responsável transporte:</b> ${d.RespTransporte || "-"}</div>
+          <div class="linha"><b>Matrícula:</b> ${d.TransporteMatricula || "-"}</div>
+          <div class="linha"><b>Data aprovação:</b> ${fData(d.TransporteDataAprova)}</div>
+        </div>
       `;
     }
 
@@ -179,13 +225,13 @@ const tipo = (payload.tipo || "").toLowerCase();
           Este documento foi validado eletronicamente.
         </div>
 
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
+        <div class="qr-box">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
+        </div>
       </div>
     `;
 
   }catch(e){
-
-    console.error(e);
 
     statusDiv.innerHTML = "Erro na validação";
     statusDiv.className = "status invalido";
