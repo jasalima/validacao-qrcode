@@ -37,8 +37,8 @@ window.onload = function () {
   const dadosDiv = document.getElementById("dados");
 
   const params = new URLSearchParams(window.location.search);
-  const codigo = params.get("codigo");
-  const hash = params.get("hash");
+  const codigo = data.codigo || params.get("codigo");
+const hash = data.hash || params.get("hash");
 
   function fData(v){
     if(!v) return "-";
