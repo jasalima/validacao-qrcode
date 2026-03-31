@@ -31,14 +31,14 @@ body { font-family: Arial; background:#f4f6f8; margin:0; }
 </div>
 
 <script>
-window.onload = function () {
+window.onload = async function () {
 
   const statusDiv = document.getElementById("status");
   const dadosDiv = document.getElementById("dados");
 
   const params = new URLSearchParams(window.location.search);
-  const codigo = data.codigo || params.get("codigo");
-const hash = data.hash || params.get("hash");
+  const codigo = params.get("codigo");
+  const hash = params.get("hash");
 
   function fData(v){
     if(!v) return "-";
@@ -48,110 +48,91 @@ const hash = data.hash || params.get("hash");
     return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
-  function curto(v){
-    if(!v) return "-";
-    return v.substring(0,10)+"...";
-  }
+  try{
 
-  function g(o, campos){
-    for(let c of campos){
-      if(o && o[c]) return o[c];
+    const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
+    const data = await res.json();
+
+    console.log("RETORNO API:", data);
+
+    if(data.status !== "valido"){
+      statusDiv.innerHTML = "❌ Documento inválido";
+      statusDiv.className = "status invalido";
+      return;
     }
-    return "-";
-  }
 
-  async function validar(){
+    statusDiv.innerHTML = "✔ Documento Autêntico";
+    statusDiv.className = "status valido";
 
-    try{
+    const d = data.dados || {};
+    const tipo = (d.tipo || "").toLowerCase();
 
-      const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
-      let data = await res.json();
+    let html = "";
 
-      console.log("RAW:", data);
+    // =========================
+    // FISCALIZAÇÃO
+    // =========================
+    if(tipo === "fiscalizacao"){
 
-      // 🔥 CORREÇÃO PRINCIPAL AQUI
-      const body = data.body || data.corpo || data;
-
-      console.log("BODY FINAL:", body);
-
-      if(body.status !== "válido" && body.status !== "valido"){
-        statusDiv.innerHTML="❌ Documento inválido";
-        statusDiv.className="status invalido";
-        return;
-      }
-
-      statusDiv.innerHTML="✔ Documento Autêntico";
-      statusDiv.className="status valido";
-
-      const d = body.dados || {};
-      const tipo = (body.tipo || "").toLowerCase();
-
-      let html="";
-
-      if(tipo === "fiscalizacao"){
-
-        html = `
-          <p><b>Fiscal:</b> ${g(d,["AssinanteNome"])}</p>
-          <p><b>Matrícula:</b> ${g(d,["AssinanteMatricula"])}</p>
-          <p><b>Data/Hora:</b> ${fData(g(d,["DataHoraAssinatura"]))}</p>
-        `;
-      }
-
-      else if(tipo === "transporte" || tipo === "reserva"){
-
-        html = `
-          <p><b>Solicitante:</b> ${g(d,["Solicitante"])}</p>
-
-          <p><b>Chefe do setor:</b> ${g(d,["ChefeNome"])}</p>
-          <p><b>Matrícula:</b> ${g(d,["ChefeMatricula"])}</p>
-          <p><b>Data aprovação:</b> ${fData(g(d,["ChefeDataHoraAprovacao"]))}</p>
-
-          <hr>
-
-          <p><b>Responsável transporte:</b> ${g(d,["RespTransporte"])}</p>
-          <p><b>Matrícula:</b> ${g(d,["TransporteMatricula"])}</p>
-          <p><b>Data aprovação:</b> ${fData(g(d,["TransporteDataAprova"]))}</p>
-        `;
-      }
-
-      else{
-        html = `<p><b>Tipo não reconhecido:</b> ${tipo}</p>`;
-      }
-
-      dadosDiv.innerHTML = `
-        ${html}
-
-        <div class="selo">
-          <strong>DOCUMENTO VALIDADO DIGITALMENTE</strong>
-
-          Código verificador:
-          <div class="codigo-box">${codigo}</div>
-
-          Hash de segurança:
-          <div class="codigo-box">${curto(hash)}</div>
-        </div>
-
-        <div style="margin-top:20px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
-        </div>
-
-        <div class="footer">
-          Este documento foi validado eletronicamente.
-        </div>
+      html = `
+        <p><b>Fiscal:</b> ${d.fiscalContrato || "-"}</p>
+        <p><b>Matrícula:</b> ${d.matricula || "-"}</p>
+        <p><b>Data/Hora:</b> ${fData(d.dataHoraAtesto)}</p>
       `;
 
-    }catch(e){
-
-      console.error(e);
-
-      statusDiv.innerHTML="Erro na validação";
-      statusDiv.className="status invalido";
-
-      dadosDiv.innerHTML=`<p>${e.message}</p>`;
     }
+
+    // =========================
+    // RESERVA / TRANSPORTE
+    // =========================
+    else{
+
+      html = `
+        <p><b>Solicitante:</b> ${d.solicitante || "-"}</p>
+        <p><b>Status:</b> ${d.status || "-"}</p>
+
+        <p><b>Chefe do setor:</b> ${d.chefeSetor || "-"}</p>
+        <p><b>Matrícula:</b> ${d.matricula || "-"}</p>
+
+        <hr>
+
+        <p><b>Responsável transporte:</b> ${d.setor || "-"}</p>
+        <p><b>Data aprovação:</b> ${fData(d.dataHora)}</p>
+      `;
+    }
+
+    dadosDiv.innerHTML = `
+      ${html}
+
+      <div class="selo">
+        <strong>DOCUMENTO VALIDADO DIGITALMENTE</strong>
+
+        Código verificador:
+        <div class="codigo-box">${codigo}</div>
+
+        Hash de segurança:
+        <div class="codigo-box">${hash.substring(0,10)}...</div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
+      </div>
+
+      <div class="footer">
+        Este documento foi validado eletronicamente.
+      </div>
+    `;
+
+  }catch(e){
+
+    console.error(e);
+
+    statusDiv.innerHTML = "Erro na validação";
+    statusDiv.className = "status invalido";
+
+    dadosDiv.innerHTML = `<p>${e.message}</p>`;
   }
 
-  validar();
 }
 </script>
 
