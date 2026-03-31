@@ -137,9 +137,9 @@ window.onload = async function () {
     if(tipo === "fiscalizacao"){
 
       html = `
-        <p><b>Solicitante:</b> ${d.solicitante || "-"}</p>
-        <p><b>Matrícula:</b> ${d.matricula || "-"}</p>
-        <p><b>Data/Hora:</b> ${fData(d.dataHora)}</p>
+        <p><b>Fiscal do contrato:</b> ${d.AssinanteNome || "-"}</p>
+        <p><b>Matrícula:</b> ${d.AssinanteMatricula || "-"}</p>
+        <p><b>Data/Hora assinatura:</b> ${fData(d.dataHora)}</p>
       `;
 
     }
