@@ -16,7 +16,6 @@ body {
   color:#fff;
   padding:20px;
   text-align:center;
-  letter-spacing:1px;
 }
 
 .container {
@@ -26,11 +25,6 @@ body {
   padding:30px;
   border-radius:6px;
   box-shadow:0 0 10px rgba(0,0,0,0.08);
-  border:1px solid #dcdcdc;
-}
-
-h3 {
-  margin-top:0;
 }
 
 .status {
@@ -38,7 +32,6 @@ h3 {
   font-weight:bold;
   margin-bottom:25px;
   border-radius:4px;
-  font-size:15px;
 }
 
 .valido {
@@ -53,25 +46,7 @@ h3 {
   border:1px solid #ea4335;
 }
 
-.bloco {
-  margin-bottom:20px;
-}
-
-.linha {
-  margin:6px 0;
-  font-size:15px;
-}
-
-.linha b {
-  display:inline-block;
-  width:200px;
-  color:#333;
-}
-
-.divisor {
-  border-top:1px solid #ddd;
-  margin:20px 0;
-}
+.linha { margin:6px 0; }
 
 .selo {
   border:2px solid #137333;
@@ -99,26 +74,13 @@ h3 {
   align-items:center;
 }
 
-.footer-text {
-  font-size:12px;
-  color:#555;
-}
-
 .qr-box {
   border:1px solid #ccc;
   padding:10px;
   border-radius:6px;
-  background:#fff;
 }
 
-.qr-box img {
-  width:110px;
-}
-
-a {
-  color:#0b5fa5;
-  text-decoration:underline;
-}
+.qr-box img { width:110px; }
 </style>
 </head>
 
@@ -146,11 +108,18 @@ window.onload = async function () {
   const hash = params.get("hash");
 
   function fData(v){
-    if(!v || v === "-") return "-";
+    if(!v) return "-";
     const d = new Date(v);
     if(isNaN(d)) return v;
     const p=n=>n.toString().padStart(2,'0');
     return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function get(obj, keys){
+    for(const k of keys){
+      if(obj && obj[k] && obj[k] !== "") return obj[k];
+    }
+    return "-";
   }
 
   try{
@@ -176,30 +145,24 @@ window.onload = async function () {
     if(tipo === "fiscalizacao"){
 
       html = `
-        <div class="bloco">
-          <div class="linha"><b>Fiscal do contrato:</b> ${d.AssinanteNome || "-"}</div>
-          <div class="linha"><b>Matrícula:</b> ${d.AssinanteMatricula || "-"}</div>
-          <div class="linha"><b>Status:</b> ${d.StatusGeral || "-"}</div>
-        </div>
+        <div class="linha"><b>Fiscal do contrato:</b> ${get(d, ["AssinanteNome","Nome"])}</div>
+        <div class="linha"><b>Matrícula:</b> ${get(d, ["AssinanteMatricula","Matricula"])}</div>
+        <div class="linha"><b>Status:</b> ${get(d, ["StatusGeral","Status"])}</div>
       `;
 
     } else {
 
       html = `
-        <div class="bloco">
-          <div class="linha"><b>Solicitante:</b> ${d.Solicitante || "-"}</div>
-          <div class="linha"><b>Status:</b> ${d.StatusGeral || "-"}</div>
-          <div class="linha"><b>Chefe do setor:</b> ${d.ChefeNome || "-"}</div>
-          <div class="linha"><b>Matrícula:</b> ${d.ChefeMatricula || "-"}</div>
-        </div>
+        <div class="linha"><b>Solicitante:</b> ${get(d, ["Solicitante","Nome"])}</div>
+        <div class="linha"><b>Status:</b> ${get(d, ["StatusGeral","Status"])}</div>
+        <div class="linha"><b>Chefe do setor:</b> ${get(d, ["ChefeNome"])}</div>
+        <div class="linha"><b>Matrícula:</b> ${get(d, ["ChefeMatricula"])}</div>
 
-        <div class="divisor"></div>
+        <hr>
 
-        <div class="bloco">
-          <div class="linha"><b>Responsável transporte:</b> ${d.RespTransporte || "-"}</div>
-          <div class="linha"><b>Matrícula:</b> ${d.TransporteMatricula || "-"}</div>
-          <div class="linha"><b>Data aprovação:</b> ${fData(d.TransporteDataAprova)}</div>
-        </div>
+        <div class="linha"><b>Responsável transporte:</b> ${get(d, ["RespTransporte"])}</div>
+        <div class="linha"><b>Matrícula:</b> ${get(d, ["TransporteMatricula"])}</div>
+        <div class="linha"><b>Data aprovação:</b> ${fData(get(d, ["TransporteDataAprova"]))}</div>
       `;
     }
 
@@ -209,7 +172,7 @@ window.onload = async function () {
       <div class="selo">
         <strong>DOCUMENTO VALIDADO DIGITALMENTE</strong>
 
-        <div style="margin-top:10px;">
+        <div>
           Código verificador:
           <div class="codigo-box">${codigo}</div>
         </div>
@@ -221,9 +184,7 @@ window.onload = async function () {
       </div>
 
       <div class="footer">
-        <div class="footer-text">
-          Este documento foi validado eletronicamente.
-        </div>
+        <div>Este documento foi validado eletronicamente.</div>
 
         <div class="qr-box">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
@@ -235,7 +196,6 @@ window.onload = async function () {
 
     statusDiv.innerHTML = "Erro na validação";
     statusDiv.className = "status invalido";
-
     dadosDiv.innerHTML = `<p>${e.message}</p>`;
   }
 
