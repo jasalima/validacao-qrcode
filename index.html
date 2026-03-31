@@ -512,7 +512,7 @@ window.onload = async function () {
     html = secao("Responsável pela Fiscalização", "grid",
       campo("Fiscal do Contrato",   fiscal,    true) +
       campo("Matrícula",            matricula) +
-      campo("Status do Documento",  d.StatusGeral)  +
+      campo("Status do Documento",  d.Status)  +
       (dataHora ? campo("Data / Hora", dataHora) : "")
     );
 
@@ -524,7 +524,7 @@ window.onload = async function () {
     html =
       secao("Solicitante", "grid1",
         campo("Nome do Solicitante", d.solicitante, true) +
-        campo("Status do Documento", d.StatusGeral,      true)
+        campo("Status do Documento", d.Status,      true)
       ) +
       '<div class="divisor"></div>' +
       secao("Aprovação do Setor", "grid",
