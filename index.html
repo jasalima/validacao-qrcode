@@ -115,11 +115,8 @@ window.onload = async function () {
     return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
-  function get(obj, keys){
-    for(const k of keys){
-      if(obj && obj[k] && obj[k] !== "") return obj[k];
-    }
-    return "-";
+  function get(v){
+    return (v && v !== "") ? v : "-";
   }
 
   try{
@@ -127,7 +124,9 @@ window.onload = async function () {
     const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
     const data = await res.json();
 
-    const payload = data.corpo || data;
+    console.log("RETORNO COMPLETO:", data);
+
+    const payload = data.body || data.corpo || data;
     const d = payload.dados || {};
     const tipo = (payload.tipo || "").toLowerCase();
 
@@ -145,24 +144,24 @@ window.onload = async function () {
     if(tipo === "fiscalizacao"){
 
       html = `
-        <div class="linha"><b>Fiscal do contrato:</b> ${get(d, ["AssinanteNome","Nome"])}</div>
-        <div class="linha"><b>Matrícula:</b> ${get(d, ["AssinanteMatricula","Matricula"])}</div>
-        <div class="linha"><b>Status:</b> ${get(d, ["StatusGeral","Status"])}</div>
+        <div class="linha"><b>Fiscal do contrato:</b> ${get(d.AssinanteNome)}</div>
+        <div class="linha"><b>Matrícula:</b> ${get(d.AssinanteMatricula)}</div>
+        <div class="linha"><b>Status:</b> ${get(d.StatusGeral)}</div>
       `;
 
     } else {
 
       html = `
-        <div class="linha"><b>Solicitante:</b> ${get(d, ["Solicitante","Nome"])}</div>
-        <div class="linha"><b>Status:</b> ${get(d, ["StatusGeral","Status"])}</div>
-        <div class="linha"><b>Chefe do setor:</b> ${get(d, ["ChefeNome"])}</div>
-        <div class="linha"><b>Matrícula:</b> ${get(d, ["ChefeMatricula"])}</div>
+        <div class="linha"><b>Solicitante:</b> ${get(d.Solicitante)}</div>
+        <div class="linha"><b>Status:</b> ${get(d.StatusGeral)}</div>
+        <div class="linha"><b>Chefe do setor:</b> ${get(d.ChefeNome)}</div>
+        <div class="linha"><b>Matrícula:</b> ${get(d.ChefeMatricula)}</div>
 
         <hr>
 
-        <div class="linha"><b>Responsável transporte:</b> ${get(d, ["RespTransporte"])}</div>
-        <div class="linha"><b>Matrícula:</b> ${get(d, ["TransporteMatricula"])}</div>
-        <div class="linha"><b>Data aprovação:</b> ${fData(get(d, ["TransporteDataAprova"]))}</div>
+        <div class="linha"><b>Responsável transporte:</b> ${get(d.RespTransporte)}</div>
+        <div class="linha"><b>Matrícula:</b> ${get(d.TransporteMatricula)}</div>
+        <div class="linha"><b>Data aprovação:</b> ${fData(d.TransporteDataAprova)}</div>
       `;
     }
 
@@ -194,8 +193,11 @@ window.onload = async function () {
 
   }catch(e){
 
+    console.error(e);
+
     statusDiv.innerHTML = "Erro na validação";
     statusDiv.className = "status invalido";
+
     dadosDiv.innerHTML = `<p>${e.message}</p>`;
   }
 
