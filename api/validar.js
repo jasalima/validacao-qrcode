@@ -31,14 +31,14 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    if (!data.resultado || data.resultado.length === 0) {
-      return res.status(200).json({
-        status: "invalido",
-        mensagem: "Documento não encontrado ou inválido"
-      });
-    }
+if (!data || data.status !== "valido") {
+  return res.status(200).json({
+    status: "invalido",
+    mensagem: "Documento não encontrado ou inválido"
+  });
+}
 
-    const item = data.resultado[0];
+const item = data.dados;
 
     const tipo = (item.tipo || "").toLowerCase();
 
