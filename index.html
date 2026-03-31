@@ -69,30 +69,12 @@ window.onload = function () {
 
       console.log("RAW:", data);
 
-      // 🔥 TRATAMENTO UNIVERSAL
-      if(data.body){
-        data = data.body;
-      }
+      // 🔥 CORREÇÃO PRINCIPAL AQUI
+      const body = data.body || data.corpo || data;
 
-      // 🔥 CASO VENHA STRING (Power Automate comum)
-      if(typeof data === "string"){
-        try{
-          data = JSON.parse(data);
-        }catch(e){
-          console.error("Erro parse:", e);
-        }
-      }
+      console.log("BODY FINAL:", body);
 
-      // 🔥 CASO VENHA EM detalhe
-      if(data.detalhe){
-        try{
-          data = JSON.parse(data.detalhe);
-        }catch(e){}
-      }
-
-      console.log("NORMALIZADO:", data);
-
-      if(data.status !== "valido"){
+      if(body.status !== "válido" && body.status !== "valido"){
         statusDiv.innerHTML="❌ Documento inválido";
         statusDiv.className="status invalido";
         return;
@@ -101,8 +83,8 @@ window.onload = function () {
       statusDiv.innerHTML="✔ Documento Autêntico";
       statusDiv.className="status valido";
 
-      const d = data.dados || {};
-      const tipo = (data.tipo || "").toLowerCase();
+      const d = body.dados || {};
+      const tipo = (body.tipo || "").toLowerCase();
 
       let html="";
 
