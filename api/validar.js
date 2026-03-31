@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     console.log("FLOW RESPONSE:", JSON.stringify(data));
 
     // =========================
-    // VALIDAÇÃO DO RETORNO
+    // VALIDAÇÃO
     // =========================
     if (!data || data.status !== "valido") {
       return res.status(200).json({
@@ -53,19 +53,23 @@ export default async function handler(req, res) {
     const item = data.dados || {};
 
     // =========================
-    // NORMALIZAÇÃO DE CAMPOS
-    // (resolve problema de acento)
+    // FUNÇÃO FLEXÍVEL DE LEITURA
     // =========================
     const get = (obj, keys) => {
       for (let k of keys) {
-        if (obj[k]) return obj[k];
+        if (obj[k] !== undefined && obj[k] !== null && obj[k] !== "") {
+          return obj[k];
+        }
       }
       return "-";
     };
 
-    const tipo = (get(item, ["tipo"]) || "").toLowerCase();
+    // =========================
+    // TIPO (prioridade correta)
+    // =========================
+    const tipo = (data.tipo || item.tipo || "").toLowerCase();
 
-    let dadosFormatados;
+    let dadosFormatados = {};
 
     // =========================
     // 📄 FISCALIZAÇÃO
@@ -74,18 +78,28 @@ export default async function handler(req, res) {
 
       dadosFormatados = {
         tipo: "fiscalizacao",
-        fiscalContrato: get(item, ["AssinanteNome"]),
-        matricula: get(item, ["AssinanteMatricula"]),
-        dataHoraAtesto: get(item, ["DataHoraAssinatura"])
+
+        solicitante: get(item, ["Nome", "Solicitante"]),
+        status: get(item, ["StatusGeral", "Status"]),
+
+        chefeSetor: get(item, ["Nome"]),
+        matricula: get(item, ["Matricula", "Matrícula"]),
+
+        dataHora: get(item, ["DataHora", "DataHoraAssinatura"]),
+
+        // mantém padrão da API
+        responsavelTransporte: "-",
+        transporteMatricula: "-",
+        transporteData: "-"
       };
 
     } else {
 
       // =========================
-      // 🚗 TRANSPORTE / RESERVA
+      // 🚗 TRANSPORTE
       // =========================
       dadosFormatados = {
-        tipo: "reserva",
+        tipo: "transporte",
 
         solicitante: get(item, ["Solicitante"]),
         status: get(item, ["StatusGeral"]),
@@ -102,12 +116,13 @@ export default async function handler(req, res) {
     }
 
     // =========================
-    // RESPOSTA FINAL
+    // RESPOSTA FINAL PADRONIZADA
     // =========================
     return res.status(200).json({
       status: "valido",
       codigo,
       hash,
+      tipo,
       dados: dadosFormatados
     });
 
