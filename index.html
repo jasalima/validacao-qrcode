@@ -125,8 +125,10 @@ window.onload = async function () {
     statusDiv.innerHTML = "✔ Documento Autêntico";
     statusDiv.className = "status valido";
 
-    const d = data.dados || {};
-    const tipo = (data.tipo || "").toLowerCase();
+    const payload = data.corpo || data;
+
+const d = payload.dados || {};
+const tipo = (payload.tipo || "").toLowerCase();
 
     let html = "";
 
