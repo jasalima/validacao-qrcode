@@ -55,7 +55,7 @@ window.onload = function () {
 
   function g(o, campos){
     for(let c of campos){
-      if(o[c]) return o[c];
+      if(o && o[c]) return o[c];
     }
     return "-";
   }
@@ -67,9 +67,12 @@ window.onload = function () {
       const res = await fetch(`/api/validar?codigo=${codigo}&hash=${hash}`);
       const data = await res.json();
 
-      console.log("DATA:", data);
+      console.log("DATA COMPLETA:", data);
 
-      if(data.status !== "valido"){
+      // 🔥 CORREÇÃO AQUI
+      const body = data.body || data;
+
+      if(body.status !== "valido"){
         statusDiv.innerHTML="❌ Documento inválido";
         statusDiv.className="status invalido";
         return;
@@ -78,8 +81,8 @@ window.onload = function () {
       statusDiv.innerHTML="✔ Documento Autêntico";
       statusDiv.className="status valido";
 
-      const d = data.dados || {};
-      const tipo = (d.tipo || "").toLowerCase();
+      const d = body.dados || {};
+      const tipo = (body.tipo || "").toLowerCase();
 
       let html="";
 
