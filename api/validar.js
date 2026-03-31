@@ -1,5 +1,9 @@
 export default async function handler(req, res) {
   try {
+
+    // =========================
+    // PARAMETROS
+    // =========================
     const codigo = req.query.codigo || req.body?.codigo;
     const hash = req.query.hash || req.body?.hash;
 
@@ -10,6 +14,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // =========================
+    // CHAMADA DO FLOW
+    // =========================
     const flowUrl = "https://default456213cf707347c6bf4941b654ad44.9b.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/c170f3d2665d4f359c49ebed0f2596fc/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Z4FD88F15fMH5TSoVik5hDZ-6ROONamcSgjKV32OU3Q";
 
     const response = await fetch(flowUrl, {
@@ -31,58 +38,88 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-if (!data || data.status !== "valido") {
-  return res.status(200).json({
-    status: "invalido",
-    mensagem: "Documento não encontrado ou inválido"
-  });
-}
+    console.log("FLOW RESPONSE:", JSON.stringify(data));
 
-const item = data.dados;
+    // =========================
+    // VALIDAÇÃO DO RETORNO
+    // =========================
+    if (!data || data.status !== "valido") {
+      return res.status(200).json({
+        status: "invalido",
+        mensagem: "Documento não encontrado ou inválido"
+      });
+    }
 
-    const tipo = (item.tipo || "").toLowerCase();
+    const item = data.dados || {};
+
+    // =========================
+    // NORMALIZAÇÃO DE CAMPOS
+    // (resolve problema de acento)
+    // =========================
+    const get = (obj, keys) => {
+      for (let k of keys) {
+        if (obj[k]) return obj[k];
+      }
+      return "-";
+    };
+
+    const tipo = (get(item, ["tipo"]) || "").toLowerCase();
 
     let dadosFormatados;
 
     // =========================
-    // 📄 FISCALIZAÇÃO (SEU CASO)
+    // 📄 FISCALIZAÇÃO
     // =========================
     if (tipo === "fiscalizacao") {
 
       dadosFormatados = {
         tipo: "fiscalizacao",
-        fiscalContrato: item.AssinanteNome || "-",
-        matricula: item.AssinanteMatricula || "-",
-        dataHoraAtesto: item.DataHoraAssinatura || "-"
+        fiscalContrato: get(item, ["AssinanteNome"]),
+        matricula: get(item, ["AssinanteMatricula"]),
+        dataHoraAtesto: get(item, ["DataHoraAssinatura"])
       };
 
     } else {
 
       // =========================
-      // 🚗 RESERVA
+      // 🚗 TRANSPORTE / RESERVA
       // =========================
       dadosFormatados = {
         tipo: "reserva",
-        solicitante: item.Solicitante || "-",
-        status: item.StatusGeral || "-",
-        chefeSetor: item.ChefeNome || "-",
-        matricula: item.ChefeMatrícula || "-",
-        setor: item.RespTransporte || "-",
-        dataHora: item.TransporteDataAprova || "-"
+
+        solicitante: get(item, ["Solicitante"]),
+        status: get(item, ["StatusGeral"]),
+
+        chefeSetor: get(item, ["ChefeNome"]),
+        chefeMatricula: get(item, ["ChefeMatricula", "ChefeMatrícula"]),
+        chefeData: get(item, ["ChefeDataHoraAprovacao"]),
+
+        responsavelTransporte: get(item, ["RespTransporte"]),
+        transporteMatricula: get(item, ["TransporteMatricula"]),
+        transporteData: get(item, ["TransporteDataAprova"])
       };
 
     }
 
+    // =========================
+    // RESPOSTA FINAL
+    // =========================
     return res.status(200).json({
       status: "valido",
+      codigo,
+      hash,
       dados: dadosFormatados
     });
 
   } catch (error) {
+
+    console.error("ERRO API:", error);
+
     return res.status(500).json({
       status: "erro",
       mensagem: "Erro interno na validação",
       detalhe: error.message
     });
+
   }
 }
