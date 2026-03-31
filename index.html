@@ -71,7 +71,6 @@ body { font-family: Arial; background:#f4f6f8; margin:0; }
   width:120px;
 }
 
-/* links */
 a {
   color:#0b5fa5;
   text-decoration:underline;
@@ -131,37 +130,28 @@ window.onload = async function () {
 
     let html = "";
 
-    // =========================
-    // FISCALIZAÇÃO
-    // =========================
     if(tipo === "fiscalizacao"){
 
       html = `
         <p><b>Fiscal do contrato:</b> ${d.AssinanteNome || "-"}</p>
         <p><b>Matrícula:</b> ${d.AssinanteMatricula || "-"}</p>
-        <p><b>Data/Hora assinatura:</b> ${fData(d.dataHora)}</p>
+        <p><b>Status:</b> ${d.StatusGeral || "-"}</p>
       `;
 
-    }
-
-    // =========================
-    // TRANSPORTE
-    // =========================
-    else{
+    } else {
 
       html = `
-        <p><b>Solicitante:</b> ${d.solicitante || "-"}</p>
-        <p><b>Status:</b> ${d.status || "-"}</p>
+        <p><b>Solicitante:</b> ${d.Solicitante || "-"}</p>
+        <p><b>Status:</b> ${d.StatusGeral || "-"}</p>
 
-        <p><b>Chefe do setor:</b> ${d.chefeSetor || "-"}</p>
-        <p><b>Matrícula:</b> ${d.chefeMatricula || "-"}</p>
-        <p><b>Data aprovação Chefe:</b>${fData(d.ChefeDataHoraAprovacao)}</p>
+        <p><b>Chefe do setor:</b> ${d.ChefeNome || "-"}</p>
+        <p><b>Matrícula:</b> ${d.ChefeMatricula || "-"}</p>
 
         <hr>
 
-        <p><b>Responsável transporte:</b> ${d.responsavelTransporte || "-"}</p>
-        <p><b>Matrícula:</b> ${d.transporteMatricula || "-"}</p>
-        <p><b>Data aprovação:</b> ${fData(d.transporteData)}</p>
+        <p><b>Responsável transporte:</b> ${d.RespTransporte || "-"}</p>
+        <p><b>Matrícula:</b> ${d.TransporteMatricula || "-"}</p>
+        <p><b>Data aprovação:</b> ${fData(d.TransporteDataAprova)}</p>
       `;
     }
 
