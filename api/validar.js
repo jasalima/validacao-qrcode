@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     // PARAMETROS
     // =========================
     const codigo = req.query.codigo || req.body?.codigo;
-    const hash = req.query.hash || req.body?.hash;
+    const hash   = req.query.hash   || req.body?.hash;
 
     if (!codigo || !hash) {
       return res.status(400).json({
@@ -20,9 +20,7 @@ export default async function handler(req, res) {
 
     const response = await fetch(flowUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ codigo, hash })
     });
 
@@ -52,18 +50,21 @@ export default async function handler(req, res) {
 
     // =========================
     // FUNÇÃO FLEXÍVEL DE LEITURA
+    // Aceita string vazia como valor válido quando allowEmpty=true
     // =========================
-    const get = (obj, keys) => {
+    const get = (obj, keys, allowEmpty = false) => {
       for (let k of keys) {
-        if (obj[k] !== undefined && obj[k] !== null && obj[k] !== "") {
-          return obj[k];
+        const val = obj[k];
+        if (val !== undefined && val !== null) {
+          if (allowEmpty) return val;           // aceita "" também
+          if (val !== "") return val;           // ignora "" por padrão
         }
       }
-      return "-";
+      return null;
     };
 
     // =========================
-    // TIPO (prioridade correta)
+    // TIPO
     // =========================
     const tipo = (data.tipo || item.tipo || "").toLowerCase();
 
@@ -71,34 +72,44 @@ export default async function handler(req, res) {
 
     // =========================
     // 📄 FISCALIZAÇÃO
+    // Flow retorna: AssinanteNome, AssinanteMatricula, StatusGeral
     // =========================
     if (tipo === "fiscalizacao") {
       dadosFormatados = {
         tipo: "fiscalizacao",
-        solicitante: get(item, ["Nome", "Solicitante"]),
-        status: get(item, ["StatusGeral", "Status"]),
-        chefeSetor: get(item, ["Nome"]),
-        matricula: get(item, ["Matricula", "Matrícula"]),
-        dataHora: get(item, ["DataHora", "DataHoraAssinatura"]),
-        // mantém padrão da API
-        responsavelTransporte: "-",
-        transporteMatricula: "-",
-        transporteData: "-"
+        solicitante:          get(item, ["AssinanteNome", "Nome", "Solicitante"]),
+        matricula:            get(item, ["AssinanteMatricula", "Matricula", "Matrícula"]),
+        status:               get(item, ["StatusGeral", "Status"]),
+        dataHora:             get(item, ["DataHora", "DataHoraAssinatura"]),
+        // não usados neste tipo
+        chefeSetor:           null,
+        chefeMatricula:       null,
+        responsavelTransporte: null,
+        transporteMatricula:  null,
+        transporteData:       null
       };
+
+    // =========================
+    // 🚗 TRANSPORTE
+    // Flow retorna: Solicitante, StatusGeral (pode vir ""),
+    //   ChefeNome, ChefeMatricula, RespTransporte,
+    //   TransporteMatricula, TransporteDataAprova
+    // =========================
     } else {
-      // =========================
-      // 🚗 TRANSPORTE
-      // =========================
+      // StatusGeral pode vir vazio ("") — exibimos "—" no front se for vazio
+      const statusRaw = get(item, ["StatusGeral", "Status"], true); // allowEmpty
+
       dadosFormatados = {
-        tipo: "transporte",
-        solicitante: get(item, ["Solicitante"]),
-        status: get(item, ["StatusGeral"]),
-        chefeSetor: get(item, ["ChefeNome"]),
-        chefeMatricula: get(item, ["ChefeMatricula", "ChefeMatrícula"]),
-        chefeData: get(item, ["ChefeDataHoraAprovacao"]),
+        tipo:                 "transporte",
+        solicitante:          get(item, ["Solicitante"]),
+        // se StatusGeral vier "" ou null, manda null → front exibe "—"
+        status:               (statusRaw !== null && statusRaw !== "") ? statusRaw : null,
+        chefeSetor:           get(item, ["ChefeNome"]),
+        chefeMatricula:       get(item, ["ChefeMatricula", "ChefeMatrícula"]),
+        chefeData:            get(item, ["ChefeDataHoraAprovacao"]),
         responsavelTransporte: get(item, ["RespTransporte"]),
-        transporteMatricula: get(item, ["TransporteMatricula"]),
-        transporteData: get(item, ["TransporteDataAprova"])
+        transporteMatricula:  get(item, ["TransporteMatricula"]),
+        transporteData:       get(item, ["TransporteDataAprova", "DataHoraAssinatura"])
       };
     }
 
