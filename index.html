@@ -6,14 +6,76 @@
 
 <style>
 body { font-family: Arial; background:#f4f6f8; margin:0; }
+
 .header { background:#0b5fa5; color:#fff; padding:20px; }
-.container { background:#fff; max-width:900px; margin:30px auto; padding:25px; border-radius:8px; }
-.status { padding:15px; font-weight:bold; margin-bottom:20px; border-radius:5px; }
-.valido { background:#e6f4ea; color:#137333; border:1px solid #34a853; }
-.invalido { background:#fdecea; color:#c5221f; border:1px solid #ea4335; }
-.selo { border:2px solid #137333; padding:15px; border-radius:8px; margin-top:20px; background:#f0fff4; }
-.codigo-box { background:#f1f3f4; padding:10px; border-radius:5px; font-family:monospace; margin-top:10px; }
-.footer { margin-top:30px; font-size:12px; color:#555; }
+
+.container {
+  background:#fff;
+  max-width:900px;
+  margin:30px auto;
+  padding:25px;
+  border-radius:8px;
+}
+
+.status {
+  padding:15px;
+  font-weight:bold;
+  margin-bottom:20px;
+  border-radius:5px;
+}
+
+.valido {
+  background:#e6f4ea;
+  color:#137333;
+  border:1px solid #34a853;
+}
+
+.invalido {
+  background:#fdecea;
+  color:#c5221f;
+  border:1px solid #ea4335;
+}
+
+.selo {
+  border:2px solid #137333;
+  padding:15px;
+  border-radius:8px;
+  margin-top:20px;
+  background:#f0fff4;
+}
+
+.codigo-box {
+  background:#f1f3f4;
+  padding:10px;
+  border-radius:5px;
+  font-family:monospace;
+  margin-top:10px;
+}
+
+.footer {
+  margin-top:25px;
+  padding-top:15px;
+  border-top:1px solid #ccc;
+  border-bottom:1px solid #ccc;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.footer-text {
+  font-size:12px;
+  color:#555;
+}
+
+.footer img {
+  width:120px;
+}
+
+/* links */
+a {
+  color:#0b5fa5;
+  text-decoration:underline;
+}
 </style>
 </head>
 
@@ -41,7 +103,7 @@ window.onload = async function () {
   const hash = params.get("hash");
 
   function fData(v){
-    if(!v) return "-";
+    if(!v || v === "-") return "-";
     const d = new Date(v);
     if(isNaN(d)) return v;
     const p=n=>n.toString().padStart(2,'0');
@@ -65,7 +127,7 @@ window.onload = async function () {
     statusDiv.className = "status valido";
 
     const d = data.dados || {};
-    const tipo = (d.tipo || "").toLowerCase();
+    const tipo = (data.tipo || "").toLowerCase();
 
     let html = "";
 
@@ -75,15 +137,15 @@ window.onload = async function () {
     if(tipo === "fiscalizacao"){
 
       html = `
-        <p><b>Fiscal:</b> ${d.fiscalContrato || "-"}</p>
+        <p><b>Solicitante:</b> ${d.solicitante || "-"}</p>
         <p><b>Matrícula:</b> ${d.matricula || "-"}</p>
-        <p><b>Data/Hora:</b> ${fData(d.dataHoraAtesto)}</p>
+        <p><b>Data/Hora:</b> ${fData(d.dataHora)}</p>
       `;
 
     }
 
     // =========================
-    // RESERVA / TRANSPORTE
+    // TRANSPORTE
     // =========================
     else{
 
@@ -92,12 +154,13 @@ window.onload = async function () {
         <p><b>Status:</b> ${d.status || "-"}</p>
 
         <p><b>Chefe do setor:</b> ${d.chefeSetor || "-"}</p>
-        <p><b>Matrícula:</b> ${d.matricula || "-"}</p>
+        <p><b>Matrícula:</b> ${d.chefeMatricula || "-"}</p>
 
         <hr>
 
-        <p><b>Responsável transporte:</b> ${d.setor || "-"}</p>
-        <p><b>Data aprovação:</b> ${fData(d.dataHora)}</p>
+        <p><b>Responsável transporte:</b> ${d.responsavelTransporte || "-"}</p>
+        <p><b>Matrícula:</b> ${d.transporteMatricula || "-"}</p>
+        <p><b>Data aprovação:</b> ${fData(d.transporteData)}</p>
       `;
     }
 
@@ -107,19 +170,23 @@ window.onload = async function () {
       <div class="selo">
         <strong>DOCUMENTO VALIDADO DIGITALMENTE</strong>
 
-        Código verificador:
-        <div class="codigo-box">${codigo}</div>
+        <div style="margin-top:10px;">
+          Código verificador:
+          <div class="codigo-box">${codigo}</div>
+        </div>
 
-        Hash de segurança:
-        <div class="codigo-box">${hash.substring(0,10)}...</div>
-      </div>
-
-      <div style="margin-top:20px;">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
+        <div>
+          Hash de segurança:
+          <div class="codigo-box">${hash.substring(0,10)}...</div>
+        </div>
       </div>
 
       <div class="footer">
-        Este documento foi validado eletronicamente.
+        <div class="footer-text">
+          Este documento foi validado eletronicamente.
+        </div>
+
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}" />
       </div>
     `;
 
