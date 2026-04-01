@@ -398,7 +398,7 @@ window.onload = async function () {
   let html = "";
 
   if (tipo === "fiscalizacao" || tipo === "fiscalização") {
-    document.getElementById('titulo').textContent = "Fiscalização de Contrato";
+    document.getElementById('titulo').textContent = "Atesto de Fatura";
     document.getElementById('subtit').textContent = "Documento de Fiscalização — Administração Pública Federal";
     const fiscal    = def(d.solicitante) || def(d.chefeSetor);
     const matricula = def(d.matricula)   || def(d.chefeMatricula);
@@ -411,7 +411,7 @@ window.onload = async function () {
     );
 
   } else if (tipo === "transporte") {
-    document.getElementById('titulo').textContent = "Autorização de Transporte";
+    document.getElementById('titulo').textContent = "Requisição de Transporte";
     document.getElementById('subtit').textContent = "Documento de Transporte — Administração Pública Federal";
     html =
       secao("Solicitante", "grid1",
