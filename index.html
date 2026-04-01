@@ -18,25 +18,24 @@
 
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  html {
+  html, body {
     background: #ddd8cc !important;
+    min-height: 100vh;
+    font-family: 'EB Garamond', Georgia, serif;
+    color: var(--tinta);
   }
 
   body {
-    background: #ddd8cc !important;
-    background-image:
-      repeating-linear-gradient(0deg,  transparent, transparent 44px, rgba(26,74,46,0.04) 44px, rgba(26,74,46,0.04) 45px),
-      repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(26,74,46,0.04) 44px, rgba(26,74,46,0.04) 45px) !important;
-    min-height: 100vh;
-    font-family: 'EB Garamond', Georgia, serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 36px 20px 48px;
-    color: var(--tinta);
+    background-image:
+      repeating-linear-gradient(0deg,  transparent, transparent 44px, rgba(26,74,46,0.04) 44px, rgba(26,74,46,0.04) 45px),
+      repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(26,74,46,0.04) 44px, rgba(26,74,46,0.04) 45px) !important;
   }
 
-  /* ══ CABEÇALHO ══ */
+  /* ══ CABEÇALHO CLARO ══ */
   .pg-header {
     width: 100%;
     max-width: 860px;
@@ -45,37 +44,42 @@
     gap: 16px;
     margin-bottom: 28px;
     padding: 14px 22px;
-    background: rgba(255,255,255,0.6);
+    /* fundo branco com leve toque esverdeado — completamente legível */
+    background: #ffffff;
     border-radius: 4px;
-    border: 1px solid rgba(184,146,42,0.3);
+    border-top: 3px solid var(--verde);
+    border-left: 1px solid rgba(26,74,46,0.15);
+    border-right: 1px solid rgba(26,74,46,0.15);
+    border-bottom: 1px solid rgba(26,74,46,0.15);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     animation: slideDown .5s ease both;
   }
 
   .brasao {
-    width: 50px; height: 50px;
+    width: 52px; height: 52px;
     border: 2px solid var(--ouro);
     border-radius: 50%;
-    background: radial-gradient(circle, #2d3800, #1a2200);
+    background: radial-gradient(circle, #3a4800, #1e2800);
     display: flex; align-items: center; justify-content: center;
     font-size: 22px;
-    box-shadow: 0 0 14px rgba(184,146,42,0.3);
+    box-shadow: 0 0 14px rgba(184,146,42,0.35);
     flex-shrink: 0;
   }
 
   .hd-h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: var(--verde);
+    color: var(--verde);       /* verde escuro — legível sobre branco */
   }
 
   .hd-p {
     font-size: 10.5px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #888;
+    color: #666;
     margin-top: 2px;
   }
 
@@ -95,7 +99,7 @@
     animation: fadeUp .6s ease .15s both;
   }
 
-  /* Faixas guilhoché */
+  /* Guilhoché */
   .faixa {
     height: 44px;
     background: var(--verde);
@@ -107,111 +111,57 @@
   }
   .faixa::before {
     content: '';
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background:
       repeating-linear-gradient( 55deg, transparent, transparent 4px, rgba(255,255,255,0.055) 4px, rgba(255,255,255,0.055) 5px),
       repeating-linear-gradient(-55deg, transparent, transparent 4px, rgba(255,255,255,0.055) 4px, rgba(255,255,255,0.055) 5px);
   }
   .faixa::after {
-    content:'';
-    position:absolute;
-    inset:0;
+    content:''; position:absolute; inset:0;
     border-top: 1.5px solid rgba(184,146,42,0.4);
     border-bottom: 1.5px solid rgba(184,146,42,0.4);
   }
   .faixa-lbl {
     font-family: 'Source Code Pro', monospace;
-    font-size: 9px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.85);
-    z-index: 1;
+    font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(255,255,255,0.88); z-index: 1;
   }
 
   /* Bordas laterais */
   .bl, .br {
-    position: absolute;
-    top: 44px; bottom: 44px;
-    width: 22px;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 1;
+    position: absolute; top: 44px; bottom: 44px;
+    width: 22px; overflow: hidden; pointer-events: none; z-index: 1;
   }
-  .bl { left:0; }
-  .br { right:0; }
+  .bl { left:0; } .br { right:0; }
   .bl::before, .br::before {
-    content:'';
-    position:absolute; inset:0;
+    content:''; position:absolute; inset:0;
     background: repeating-linear-gradient(180deg,
       rgba(26,74,46,0.10) 0px, rgba(26,74,46,0.10) 6px,
-      rgba(45,106,70,0.05) 6px, rgba(45,106,70,0.05) 12px
-    );
+      rgba(45,106,70,0.05) 6px, rgba(45,106,70,0.05) 12px);
   }
   .bl::after { content:''; position:absolute; top:0;bottom:0;right:0; width:1.5px; background:linear-gradient(180deg,transparent,rgba(184,146,42,0.3),transparent); }
-  .br::after { content:''; position:absolute; top:0;bottom:0;left:0;  width:1.5px; background:linear-gradient(180deg,transparent,rgba(184,146,42,0.3),transparent); }
+  .br::after { content:''; position:absolute; top:0;bottom:0;left:0; width:1.5px; background:linear-gradient(180deg,transparent,rgba(184,146,42,0.3),transparent); }
 
   /* Marca d'água */
-  .daguia {
-    position:absolute; inset:44px;
-    display:flex; align-items:center; justify-content:center;
-    pointer-events:none; z-index:0;
-  }
-  .daguia-txt {
-    font-family:'Playfair Display',serif;
-    font-size:108px; font-weight:900;
-    color:transparent;
-    -webkit-text-stroke:1px rgba(26,74,46,0.07);
-    transform:rotate(-22deg);
-    white-space:nowrap; user-select:none;
-  }
+  .daguia { position:absolute; inset:44px; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:0; }
+  .daguia-txt { font-family:'Playfair Display',serif; font-size:108px; font-weight:900; color:transparent; -webkit-text-stroke:1px rgba(26,74,46,0.07); transform:rotate(-22deg); white-space:nowrap; user-select:none; }
 
-  /* ══ INNER ══ */
+  /* Inner */
   .inner { padding:32px 48px 36px; position:relative; }
 
-  .serial {
-    position:absolute;
-    font-family:'Source Code Pro',monospace;
-    font-size:7.5px; letter-spacing:2px;
-    color:rgba(26,74,46,0.2);
-    writing-mode:vertical-rl;
-    top:50%; pointer-events:none; z-index:1;
-  }
+  .serial { position:absolute; font-family:'Source Code Pro',monospace; font-size:7.5px; letter-spacing:2px; color:rgba(26,74,46,0.2); writing-mode:vertical-rl; top:50%; pointer-events:none; z-index:1; }
   .sl { left:2px; transform:translateY(-50%) rotate(180deg); }
   .sr { right:2px; transform:translateY(-50%); }
 
-  /* cabeçalho doc */
-  .doc-head {
-    display:flex; align-items:flex-start;
-    justify-content:space-between; gap:20px;
-    padding-bottom:22px;
-    border-bottom:1px solid var(--cinza-sutil);
-    margin-bottom:26px;
-    position:relative; z-index:1;
-  }
-  .doc-head::after {
-    content:''; position:absolute;
-    bottom:-3px; left:0; right:0; height:1px;
-    background:linear-gradient(90deg,transparent,rgba(184,146,42,0.38),transparent);
-  }
-  .dh-pre {
-    font-family:'Source Code Pro',monospace;
-    font-size:8.5px; letter-spacing:3px;
-    text-transform:uppercase; color:var(--verde-menta);
-    margin-bottom:5px;
-  }
-  .dh-titulo {
-    font-family:'Playfair Display',serif;
-    font-size:23px; color:var(--verde); font-weight:700; line-height:1.2;
-  }
+  /* Cabeçalho doc */
+  .doc-head { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding-bottom:22px; border-bottom:1px solid var(--cinza-sutil); margin-bottom:26px; position:relative; z-index:1; }
+  .doc-head::after { content:''; position:absolute; bottom:-3px;left:0;right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(184,146,42,0.38),transparent); }
+  .dh-pre { font-family:'Source Code Pro',monospace; font-size:8.5px; letter-spacing:3px; text-transform:uppercase; color:var(--verde-menta); margin-bottom:5px; }
+  .dh-titulo { font-family:'Playfair Display',serif; font-size:23px; color:var(--verde); font-weight:700; line-height:1.2; }
   .dh-sub { font-size:12px; color:#999; font-style:italic; margin-top:4px; }
 
   /* Badge */
-  .badge {
-    flex-shrink:0; min-width:148px; padding:12px 18px;
-    border-radius:2px; text-align:center;
-    display:flex; flex-direction:column; align-items:center; gap:3px;
-  }
+  .badge { flex-shrink:0; min-width:148px; padding:12px 18px; border-radius:2px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; }
   .badge.loading  { background:#f0ede6; border:1.5px solid #ccc; color:#aaa; }
   .badge.valido   { background:linear-gradient(135deg,#ecf7f1,#d6f0e0); border:1.5px solid var(--verde-menta); color:var(--verde); box-shadow:0 4px 14px rgba(45,106,70,0.1); }
   .badge.invalido { background:linear-gradient(135deg,#fff2f2,#ffe0e0); border:1.5px solid #c53030; color:#c53030; }
@@ -221,39 +171,18 @@
 
   /* Seções */
   .secao { position:relative; z-index:1; margin-bottom:20px; }
-  .sec-lbl {
-    font-family:'Source Code Pro',monospace;
-    font-size:8.5px; letter-spacing:3px; text-transform:uppercase;
-    color:var(--ouro); margin-bottom:14px;
-    display:flex; align-items:center; gap:10px;
-  }
+  .sec-lbl { font-family:'Source Code Pro',monospace; font-size:8.5px; letter-spacing:3px; text-transform:uppercase; color:var(--ouro); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
   .sec-lbl::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(184,146,42,0.4),transparent); }
-
   .grid  { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .grid1 { display:grid; grid-template-columns:1fr; gap:14px; }
   .sp2   { grid-column:1/-1; }
-
   .campo-lbl { font-family:'Source Code Pro',monospace; font-size:8px; letter-spacing:2px; text-transform:uppercase; color:#aaa; margin-bottom:4px; }
-  .campo-val {
-    font-size:15px; color:var(--tinta); font-weight:500;
-    padding:8px 12px;
-    background:var(--creme-escuro);
-    border-left:3px solid var(--verde-menta);
-    border-radius:0 2px 2px 0;
-    min-height:36px; display:flex; align-items:center;
-    font-family:'EB Garamond',serif;
-  }
+  .campo-val { font-size:15px; color:var(--tinta); font-weight:500; padding:8px 12px; background:var(--creme-escuro); border-left:3px solid var(--verde-menta); border-radius:0 2px 2px 0; min-height:36px; display:flex; align-items:center; font-family:'EB Garamond',serif; }
   .campo-val.vazio { color:#bbb; font-style:italic; font-size:13px; }
-
   .divisor { height:1px; background:linear-gradient(90deg,transparent,var(--cinza-sutil),transparent); margin:18px 0; position:relative; z-index:1; }
 
   /* Rodapé segurança */
-  .rodape {
-    position:relative; z-index:1;
-    display:grid; grid-template-columns:1fr auto;
-    gap:24px; align-items:end;
-    padding-top:18px; border-top:1px solid var(--cinza-sutil);
-  }
+  .rodape { position:relative; z-index:1; display:grid; grid-template-columns:1fr auto; gap:24px; align-items:end; padding-top:18px; border-top:1px solid var(--cinza-sutil); }
   .rodape::before { content:''; position:absolute; top:-3px;left:0;right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(184,146,42,0.28),transparent); }
   .seg-titulo { font-family:'Source Code Pro',monospace; font-size:8.5px; letter-spacing:3px; text-transform:uppercase; color:var(--verde-menta); margin-bottom:12px; }
   .cod-item { margin-bottom:10px; }
@@ -269,18 +198,9 @@
   .qr-frame img { width:96px; height:96px; display:block; }
   .qr-lbl { font-family:'Source Code Pro',monospace; font-size:7.5px; letter-spacing:2px; text-transform:uppercase; color:#bbb; }
 
-  /* msg centro */
   .msg-c { text-align:center; padding:28px 0; font-size:14px; font-style:italic; color:#aaa; position:relative; z-index:1; }
   .msg-c.erro { color:#c53030; }
-
-  /* Caixa de debug (visível só quando há erro de API) */
-  .debug-box {
-    margin-top:10px; padding:10px 14px;
-    background:#fff8f8; border:1px solid #fcc; border-radius:2px;
-    font-family:'Source Code Pro',monospace; font-size:10px;
-    color:#c53030; word-break:break-all; line-height:1.6;
-    display:none;
-  }
+  .debug-box { margin-top:10px; padding:10px 14px; background:#fff8f8; border:1px solid #fcc; border-radius:2px; font-family:'Source Code Pro',monospace; font-size:10px; color:#c53030; word-break:break-all; line-height:1.6; display:none; }
   .debug-box.show { display:block; }
 
   @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.4} }
@@ -374,7 +294,6 @@
 <script>
 document.getElementById('ano').textContent = new Date().getFullYear();
 
-/* ── helpers ── */
 const def = x => (x !== null && x !== undefined && x !== "" && x !== "-") ? x : null;
 
 function fmt(str) {
@@ -412,16 +331,16 @@ function setBadge(tipo) {
   }
 }
 
-/* ── main ── */
 window.onload = async function () {
   const p      = new URLSearchParams(window.location.search);
   const codigo = p.get("codigo") || "";
   const hash   = p.get("hash")   || "";
 
+  // QR usa a URL atual que já tem o hash completo
   document.getElementById('qr').src =
     'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(window.location.href);
   document.getElementById('cod-box').textContent  = codigo || "—";
-  document.getElementById('hash-box').textContent = hash ? hash.substring(0,36)+"…" : "—";
+  document.getElementById('hash-box').textContent = hash ? hash.substring(0,40)+"…" : "—";
 
   const sc = (codigo || "DOCMGI").toUpperCase().substring(0,8);
   document.getElementById('sl').textContent = 'MGI-' + sc;
@@ -431,56 +350,35 @@ window.onload = async function () {
     setBadge('invalido');
     document.getElementById('wm').textContent = 'INVÁLIDO';
     document.getElementById('dados').innerHTML =
-      '<div class="msg-c erro">Parâmetros ausentes na URL (codigo e hash são obrigatórios).</div>';
+      '<div class="msg-c erro">Parâmetros ausentes na URL.<br><small>A URL deve conter ?codigo=...&amp;hash=...</small></div>';
     return;
   }
 
-  /* ── chamada à API ── */
   let payload;
   try {
     const res = await fetch('/api/validar?codigo=' + encodeURIComponent(codigo) + '&hash=' + encodeURIComponent(hash));
-
-    const raw = await res.text(); // lemos como texto primeiro para diagnóstico
-
+    const raw = await res.text();
     try {
       payload = JSON.parse(raw);
     } catch (jsonErr) {
-      // A API devolveu HTML de erro (ex: 404/500 de servidor)
       setBadge('invalido');
       document.getElementById('wm').textContent = 'ERRO';
       document.getElementById('titulo').textContent = 'Erro de Comunicação';
-      document.getElementById('subtit').textContent = 'Não foi possível conectar ao servidor';
+      document.getElementById('subtit').textContent = 'Resposta inesperada do servidor (HTTP ' + res.status + ')';
       document.getElementById('dados').innerHTML =
-        '<div class="msg-c erro">O servidor retornou uma resposta inesperada (HTTP ' + res.status + ').<br>' +
-        '<small>Isso geralmente acontece quando a rota /api/validar não está acessível neste ambiente.</small></div>' +
-        '<div class="debug-box show">' + raw.substring(0, 300).replace(/</g,'&lt;') + '</div>';
+        '<div class="msg-c erro">O servidor retornou uma resposta não reconhecida.</div>' +
+        '<div class="debug-box show">' + raw.substring(0,300).replace(/</g,'&lt;') + '</div>';
       document.getElementById('note').textContent = 'Verifique se a API está disponível no servidor de produção.';
       return;
     }
-
     console.log("API →", payload);
-
   } catch (netErr) {
     setBadge('invalido');
     document.getElementById('wm').textContent = 'ERRO';
-    document.getElementById('dados').innerHTML =
-      '<div class="msg-c erro">Erro de rede: ' + netErr.message + '</div>';
+    document.getElementById('dados').innerHTML = '<div class="msg-c erro">Erro de rede: ' + netErr.message + '</div>';
     return;
   }
 
-  /* ── processa resposta normalizada da API ──
-   *
-   * A API /api/validar já normaliza e devolve:
-   * {
-   *   status: "valido" | "invalido",
-   *   tipo:   "fiscalizacao" | "transporte",
-   *   dados: {
-   *     // fiscalizacao: solicitante, status, matricula, chefeSetor, chefeMatricula, dataHora
-   *     // transporte:   solicitante, status, chefeSetor, chefeMatricula, chefeData,
-   *     //               responsavelTransporte, transporteMatricula, transporteData
-   *   }
-   * }
-   */
   const status = (payload.status || "").toLowerCase();
   const tipo   = (payload.tipo   || "").toLowerCase();
   const d      = payload.dados   || {};
@@ -488,8 +386,7 @@ window.onload = async function () {
   if (status !== "valido") {
     setBadge('invalido');
     document.getElementById('wm').textContent = 'INVÁLIDO';
-    document.getElementById('dados').innerHTML =
-      '<div class="msg-c erro">Documento não encontrado ou hash inválido.</div>';
+    document.getElementById('dados').innerHTML = '<div class="msg-c erro">Documento não encontrado ou hash inválido.</div>';
     document.getElementById('note').textContent = 'Documento não autenticado. Procure o órgão emissor.';
     return;
   }
@@ -500,15 +397,12 @@ window.onload = async function () {
 
   let html = "";
 
-  if (tipo === "fiscalizacao" || tipo === "fiscalizacao") {
-
-    document.getElementById('titulo').textContent = "Atesto de Fatura";
+  if (tipo === "fiscalizacao" || tipo === "fiscalização") {
+    document.getElementById('titulo').textContent = "Fiscalização de Contrato";
     document.getElementById('subtit').textContent = "Documento de Fiscalização — Administração Pública Federal";
-
     const fiscal    = def(d.solicitante) || def(d.chefeSetor);
     const matricula = def(d.matricula)   || def(d.chefeMatricula);
     const dataHora  = fmt(d.dataHora)   || def(d.chefeData);
-
     html = secao("Responsável pela Fiscalização", "grid",
       campo("Fiscal do Contrato",   fiscal,    true) +
       campo("Matrícula",            matricula) +
@@ -517,10 +411,8 @@ window.onload = async function () {
     );
 
   } else if (tipo === "transporte") {
-
-    document.getElementById('titulo').textContent = "Requisição de Transporte";
+    document.getElementById('titulo').textContent = "Autorização de Transporte";
     document.getElementById('subtit').textContent = "Documento de Transporte — Administração Pública Federal";
-
     html =
       secao("Solicitante", "grid1",
         campo("Nome do Solicitante", d.solicitante, true) +
@@ -539,7 +431,6 @@ window.onload = async function () {
       );
 
   } else {
-    // fallback genérico — exibe tudo que veio em dados
     document.getElementById('titulo').textContent = "Validação de Documento";
     document.getElementById('subtit').textContent = "Administração Pública Federal";
     const campos = Object.entries(d).map(([k, val]) => campo(k, val)).join('');
