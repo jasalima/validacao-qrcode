@@ -14,6 +14,11 @@
     --papel:        #faf8f3;
     --tinta:        #1a1a18;
     --cinza-sutil:  #c8c0b0;
+
+    /* Padrão SEI/MGI */
+    --sei-topo:     #1a6b3a;   /* barra fininha superior */
+    --sei-corpo:    #1e7d45;   /* barra principal verde */
+    --sei-texto:    #ffffff;
   }
 
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -29,64 +34,126 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 36px 20px 48px;
+    padding: 0 0 48px;
     background-image:
       repeating-linear-gradient(0deg,  transparent, transparent 44px, rgba(26,74,46,0.04) 44px, rgba(26,74,46,0.04) 45px),
       repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(26,74,46,0.04) 44px, rgba(26,74,46,0.04) 45px) !important;
   }
 
-  /* ══ CABEÇALHO CLARO ══ */
-  .pg-header {
+  /* ══════════════════════════════════════
+     CABEÇALHO PADRÃO SEI / MGI
+  ══════════════════════════════════════ */
+
+  /* Barra superior fina — "MINISTÉRIO DA GESTÃO E INOVAÇÃO" */
+  .sei-topo {
     width: 100%;
-    max-width: 860px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 28px;
-    padding: 14px 22px;
-    /* fundo branco com leve toque esverdeado — completamente legível */
-    background: #ffffff;
-    border-radius: 4px;
-    border-top: 3px solid var(--verde);
-    border-left: 1px solid rgba(26,74,46,0.15);
-    border-right: 1px solid rgba(26,74,46,0.15);
-    border-bottom: 1px solid rgba(26,74,46,0.15);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    animation: slideDown .5s ease both;
+    background: var(--sei-topo);
+    padding: 4px 24px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.92);
+    text-transform: uppercase;
   }
 
-  .brasao {
-    width: 52px; height: 52px;
-    border: 2px solid var(--ouro);
-    border-radius: 50%;
-    background: radial-gradient(circle, #3a4800, #1e2800);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 0 14px rgba(184,146,42,0.35);
+  /* Barra principal — logo SEI + nome do órgão */
+  .sei-header {
+    width: 100%;
+    background: var(--sei-corpo);
+    padding: 10px 24px 10px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* Logo "sei." estilizada */
+  .sei-logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
     flex-shrink: 0;
   }
 
-  .hd-h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--verde);       /* verde escuro — legível sobre branco */
+  .sei-logo-txt {
+    font-family: Arial Black, Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    line-height: 1;
   }
 
-  .hd-p {
-    font-size: 10.5px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #666;
-    margin-top: 2px;
+  .sei-logo-dot {
+    font-family: Arial Black, Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #f0c040;  /* ponto amarelo igual ao SEI */
+    line-height: 1;
+  }
+
+  .sei-logo-versao {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.7);
+    margin-left: 8px;
+    align-self: flex-end;
+    padding-bottom: 3px;
+  }
+
+  .sei-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+
+  .sei-orgao {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .sei-orgao-nome {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.2px;
+    line-height: 1.3;
+  }
+
+  .sei-orgao-sub {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.82);
+    letter-spacing: 0.1px;
+    line-height: 1.3;
+  }
+
+  /* Faixa de título da página — padrão SEI ("Conferência de Autenticidade") */
+  .sei-titulo-faixa {
+    width: 100%;
+    background: #f5f5f5;
+    border-bottom: 1px solid #d0d0d0;
+    padding: 10px 24px;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 28px;
   }
 
   /* ══ DOCUMENTO ══ */
-  .documento {
+  .doc-wrapper {
     width: 100%;
     max-width: 860px;
+    padding: 0 20px;
+  }
+
+  .documento {
+    width: 100%;
     background: var(--papel);
     border-radius: 2px;
     position: relative;
@@ -204,13 +271,18 @@
   .debug-box.show { display:block; }
 
   @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:.4} }
-  @keyframes slideDown{ from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
   @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
   .pulsing { animation:pulse 1.4s ease infinite; }
 
-  .pg-footer { margin-top:18px; font-family:'Source Code Pro',monospace; font-size:9px; letter-spacing:2px; color:rgba(26,74,46,0.38); text-align:center; animation:fadeUp .6s ease .4s both; }
+  .pg-footer { margin-top:18px; font-family:'Source Code Pro',monospace; font-size:9px; letter-spacing:2px; color:rgba(26,74,46,0.38); text-align:center; }
 
   @media(max-width:600px){
+    .sei-header { padding:10px 14px; gap:12px; }
+    .sei-logo-txt, .sei-logo-dot { font-size:22px; }
+    .sei-orgao-nome { font-size:11px; }
+    .sei-orgao-sub { font-size:10px; }
+    .sei-titulo-faixa { padding:10px 14px; font-size:13px; }
+    .doc-wrapper { padding:0 14px; }
     .inner { padding:22px 26px; }
     .grid  { grid-template-columns:1fr; }
     .doc-head { flex-direction:column; }
@@ -222,74 +294,91 @@
 </head>
 <body>
 
-<header class="pg-header">
-  <div class="brasao">⚖</div>
-  <div>
-    <div class="hd-h1">Ministério da Gestão e Inovação</div>
-    <div class="hd-p">Sistema Federal de Validação Documental</div>
-  </div>
-</header>
-
-<div class="documento">
-  <div class="faixa">
-    <span class="faixa-lbl">Conferência de Autenticidade · República Federativa do Brasil</span>
+  <!-- ══ BARRA TOPO FINA — padrão SEI ══ -->
+  <div class="sei-topo">
+    Ministério da Gestão e Inovação em Serviços Públicos
   </div>
 
-  <div class="bl"></div>
-  <div class="br"></div>
-  <div class="daguia"><div class="daguia-txt" id="wm">VÁLIDO</div></div>
-
-  <div class="inner">
-    <div class="serial sl" id="sl">MGI-DOC</div>
-    <div class="serial sr" id="sr">MGI-DOC</div>
-
-    <div class="doc-head">
-      <div>
-        <div class="dh-pre">Certificado de Autenticidade</div>
-        <div class="dh-titulo" id="titulo">Validação de Documento</div>
-        <div class="dh-sub"   id="subtit">Aguardando validação...</div>
-      </div>
-      <div class="badge loading pulsing" id="badge">
-        <div class="b-icon">⏳</div>
-        <div class="b-main">Validando</div>
-        <div class="b-sub">Aguarde</div>
-      </div>
+  <!-- ══ BARRA PRINCIPAL VERDE — padrão SEI ══ -->
+  <div class="sei-header">
+    <div class="sei-logo" style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
+      🏛
     </div>
-
-    <div id="dados">
-      <div class="msg-c pulsing">Consultando servidor de autenticidade...</div>
-    </div>
-
-    <div class="divisor"></div>
-
-    <div class="rodape">
-      <div>
-        <div class="seg-titulo">Elementos de Segurança</div>
-        <div class="cod-item">
-          <div class="cod-lbl">Código Verificador</div>
-          <div class="cod-val" id="cod-box">—</div>
-        </div>
-        <div class="cod-item">
-          <div class="cod-lbl">Hash de Segurança (SHA-256)</div>
-          <div class="cod-val" id="hash-box">—</div>
-        </div>
-        <div class="rodape-note" id="note">
-          Este documento está sendo verificado junto aos servidores do MGI.
-        </div>
-      </div>
-      <div class="qr-wrap">
-        <div class="qr-frame"><img id="qr" src="" alt="QR Code" /></div>
-        <div class="qr-lbl">Verificar QR</div>
-      </div>
+    <div class="sei-divider"></div>
+    <div class="sei-orgao">
+      <div class="sei-orgao-nome">Ministério da Gestão e Inovação em Serviços Públicos</div>
+      <div class="sei-orgao-sub">Superintendência do Patrimônio da União no Estado do Tocantins</div>
     </div>
   </div>
 
-  <div class="faixa">
-    <span class="faixa-lbl">Documento Oficial — Uso Exclusivo da Administração Pública Federal</span>
+  <!-- ══ FAIXA DE TÍTULO — padrão SEI ══ -->
+  <div class="sei-titulo-faixa">
+    Conferência de Autenticidade de Documentos
   </div>
-</div>
 
-<div class="pg-footer">MGI · Sistema de Validação · Brasil · <span id="ano"></span></div>
+  <!-- ══ DOCUMENTO ══ -->
+  <div class="doc-wrapper">
+    <div class="documento">
+      <div class="faixa">
+        <span class="faixa-lbl">Certificado de Autenticidade · República Federativa do Brasil</span>
+      </div>
+
+      <div class="bl"></div>
+      <div class="br"></div>
+      <div class="daguia"><div class="daguia-txt" id="wm">VÁLIDO</div></div>
+
+      <div class="inner">
+        <div class="serial sl" id="sl">MGI-DOC</div>
+        <div class="serial sr" id="sr">MGI-DOC</div>
+
+        <div class="doc-head">
+          <div>
+            <div class="dh-pre">Certificado de Autenticidade</div>
+            <div class="dh-titulo" id="titulo">Validação de Documento</div>
+            <div class="dh-sub"   id="subtit">Aguardando validação...</div>
+          </div>
+          <div class="badge loading pulsing" id="badge">
+            <div class="b-icon">⏳</div>
+            <div class="b-main">Validando</div>
+            <div class="b-sub">Aguarde</div>
+          </div>
+        </div>
+
+        <div id="dados">
+          <div class="msg-c pulsing">Consultando servidor de autenticidade...</div>
+        </div>
+
+        <div class="divisor"></div>
+
+        <div class="rodape">
+          <div>
+            <div class="seg-titulo">Elementos de Segurança</div>
+            <div class="cod-item">
+              <div class="cod-lbl">Código Verificador</div>
+              <div class="cod-val" id="cod-box">—</div>
+            </div>
+            <div class="cod-item">
+              <div class="cod-lbl">Hash de Segurança (SHA-256)</div>
+              <div class="cod-val" id="hash-box">—</div>
+            </div>
+            <div class="rodape-note" id="note">
+              Este documento está sendo verificado junto aos servidores do MGI.
+            </div>
+          </div>
+          <div class="qr-wrap">
+            <div class="qr-frame"><img id="qr" src="" alt="QR Code" /></div>
+            <div class="qr-lbl">Verificar QR</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faixa">
+        <span class="faixa-lbl">Documento Oficial — Uso Exclusivo da Administração Pública Federal</span>
+      </div>
+    </div>
+
+    <div class="pg-footer">MGI · Sistema de Validação · Brasil · <span id="ano"></span></div>
+  </div>
 
 <script>
 document.getElementById('ano').textContent = new Date().getFullYear();
@@ -336,7 +425,6 @@ window.onload = async function () {
   const codigo = p.get("codigo") || "";
   const hash   = p.get("hash")   || "";
 
-  // QR usa a URL atual que já tem o hash completo
   document.getElementById('qr').src =
     'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(window.location.href);
   document.getElementById('cod-box').textContent  = codigo || "—";
